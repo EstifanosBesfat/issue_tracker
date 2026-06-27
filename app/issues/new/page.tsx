@@ -1,3 +1,4 @@
+// app/issues/new/page.tsx
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -30,6 +31,8 @@ export default function NewIssuePage() {
     }
   };
 
+  const inputClass = "mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 text-gray-900 px-3 py-2 shadow-sm hover:border-gray-400 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none text-sm transition-all";
+
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
       <h1 className="text-2xl font-bold mb-1 text-gray-900">Create New Issue</h1>
@@ -47,7 +50,7 @@ export default function NewIssuePage() {
           <input
             type="text"
             {...register('title')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm"
+            className={inputClass}
             placeholder="Issue title"
           />
           {errors.title && (
@@ -60,7 +63,7 @@ export default function NewIssuePage() {
           <textarea
             {...register('description')}
             rows={5}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm"
+            className={inputClass}
             placeholder="Describe the problem, steps to reproduce, or requirements..."
           />
           {errors.description && (
