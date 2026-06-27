@@ -17,6 +17,11 @@ interface Props {
     title: string;
     description: string;
     status: 'OPEN' | 'IN_PROGRESS' | 'CLOSED';
+    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    category: 'MOBILE_NETWORK' | 'FIBER_BROADBAND' | 'TELEBIRR_BILLING' | 'CORE_INFRASTRUCTURE' | 'OTHER';
+    createdAt: Date;
+    updatedAt: Date;
+
   }
 }
 
@@ -28,6 +33,8 @@ export default function EditIssueForm({ issue }: Props) {
       title: issue.title,
       description: issue.description,
       status: issue.status,
+      priority: issue.priority,
+      category: issue.category,
     }
   });
   const [error, setError] = useState('');
@@ -96,6 +103,34 @@ export default function EditIssueForm({ issue }: Props) {
           {errors.description && (
             <p className="mt-1 text-xs text-red-600">{errors.description.message}</p>
           )}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700">Category</label>
+            <select
+              {...register('category')}
+              className={inputClass}
+            >
+              <option value="MOBILE_NETWORK">Mobile Network (3G/4G/5G)</option>
+              <option value="FIBER_BROADBAND">Fiber Broadband</option>
+              <option value="TELEBIRR_BILLING">Telebirr & Billing</option>
+              <option value="CORE_INFRASTRUCTURE">Core Infrastructure / Tower</option>
+              <option value="OTHER">Other Support</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700">Priority</label>
+            <select
+              {...register('priority')}
+              className={inputClass}
+            >
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="CRITICAL">Critical SLA</option>
+            </select>
+          </div>
         </div>
 
         <button

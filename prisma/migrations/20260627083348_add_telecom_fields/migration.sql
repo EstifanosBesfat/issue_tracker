@@ -1,0 +1,9 @@
+-- CreateEnum
+CREATE TYPE "Priority" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
+
+-- CreateEnum
+CREATE TYPE "Category" AS ENUM ('MOBILE_NETWORK', 'FIBER_BROADBAND', 'TELEBIRR_BILLING', 'CORE_INFRASTRUCTURE', 'OTHER');
+
+-- AlterTable
+ALTER TABLE "Issue" ADD COLUMN     "category" "Category" NOT NULL DEFAULT 'MOBILE_NETWORK',
+ADD COLUMN     "priority" "Priority" NOT NULL DEFAULT 'MEDIUM';

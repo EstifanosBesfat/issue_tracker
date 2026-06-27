@@ -70,6 +70,34 @@ export default function NewIssuePage() {
             <p className="mt-1 text-xs text-red-600">{errors.description.message}</p>
           )}
         </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700">Category</label>
+            <select
+              {...register('category')}
+              className={inputClass}
+            >
+              <option value="MOBILE_NETWORK">Mobile Network (3G/4G/5G)</option>
+              <option value="FIBER_BROADBAND">Fiber Broadband</option>
+              <option value="TELEBIRR_BILLING">Telebirr & Billing</option>
+              <option value="CORE_INFRASTRUCTURE">Core Infrastructure / Tower</option>
+              <option value="OTHER">Other Support</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700">Priority</label>
+            <select
+              {...register('priority')}
+              className={inputClass}
+            >
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="CRITICAL">Critical SLA</option>
+            </select>
+          </div>
+        </div>
 
         <button
           type="submit"

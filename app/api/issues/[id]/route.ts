@@ -31,6 +31,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         title: body.title,
         description: body.description,
         status: body.status,
+        priority: body.priority,
+        category: body.category,
       },
     });
 

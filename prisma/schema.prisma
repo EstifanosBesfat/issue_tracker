@@ -12,12 +12,13 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model Issue {
   id          String   @id @default(uuid())
   title       String   @db.VarChar(255)
   description String   @db.Text
   status      Status   @default(OPEN)
+  priority    Priority @default(MEDIUM)
+  category    Category @default(MOBILE_NETWORK)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -26,4 +27,19 @@ enum Status {
   OPEN
   IN_PROGRESS
   CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Category {
+  MOBILE_NETWORK
+  FIBER_BROADBAND
+  TELEBIRR_BILLING
+  CORE_INFRASTRUCTURE
+  OTHER
 }
