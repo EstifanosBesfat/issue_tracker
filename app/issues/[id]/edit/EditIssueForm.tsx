@@ -17,11 +17,10 @@ interface Props {
     title: string;
     description: string;
     status: 'OPEN' | 'IN_PROGRESS' | 'CLOSED';
-    priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-    category: 'MOBILE_NETWORK' | 'FIBER_BROADBAND' | 'TELEBIRR_BILLING' | 'CORE_INFRASTRUCTURE' | 'OTHER';
+    priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | null;
+    category?: 'MOBILE_NETWORK' | 'FIBER_BROADBAND' | 'TELEBIRR_BILLING' | 'CORE_INFRASTRUCTURE' | 'OTHER' | null;
     createdAt: Date;
     updatedAt: Date;
-
   }
 }
 
@@ -33,8 +32,8 @@ export default function EditIssueForm({ issue }: Props) {
       title: issue.title,
       description: issue.description,
       status: issue.status,
-      priority: issue.priority,
-      category: issue.category,
+      priority: issue.priority ?? undefined,
+      category: issue.category ?? undefined,
     }
   });
   const [error, setError] = useState('');

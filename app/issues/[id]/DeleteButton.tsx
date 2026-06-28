@@ -2,32 +2,79 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 
-export default function DeleteButton({ issueId }: { issueId: string }) {
+interface Props {
+  issueId: string;
+  canDelete?: boolean;
+}
+
+export default function DeleteButton({ issueId, canDelete = true }: Props) {
   const router = useRouter();
+  const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState('');
+
+  if (!canDelete) return null;
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this issue? This action cannot be undone.')) return;
     try {
       setIsDeleting(true);
-      await axios.delete(`/api/issues/${issueId}`);
+      setError('');
+      const res = await fetch(`/api/issues/${issueId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? 'Failed to delete');
+      }
       router.push('/issues');
       router.refresh();
-    } catch (err) {
+    } catch (err: unknown) {
       setIsDeleting(false);
-      alert('Could not delete the issue.');
+      setShowConfirm(false);
+      setError(err instanceof Error ? err.message : 'Could not delete the issue.');
     }
   };
 
   return (
-    <button
-      onClick={handleDelete}
-      disabled={isDeleting}
-      className="rounded-md bg-red-600 px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:bg-red-300 transition"
-    >
-      {isDeleting ? 'Deleting...' : 'Delete'}
-    </button>
+    <>
+      {error && (
+        <div className="fixed top-4 right-4 z-50 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm shadow-md flex items-center gap-3">
+          <span>{error}</span>
+          <button onClick={() => setError('')} className="text-red-500 hover:text-red-700 font-bold">✕</button>
+        </div>
+      )}
+
+      {showConfirm && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Delete Issue</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              This will permanently delete this issue and all its images, comments, and activity logs. This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-500 disabled:opacity-50 transition"
+              >
+                {isDeleting ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <button
+        onClick={() => setShowConfirm(true)}
+        className="rounded-md bg-red-600 px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-red-500 disabled:bg-red-300 transition"
+      >
+        Delete
+      </button>
+    </>
   );
 }

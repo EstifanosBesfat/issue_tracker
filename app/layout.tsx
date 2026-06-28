@@ -1,14 +1,11 @@
-// app/layout.tsx
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import NavBar from "./NavBar";
-
-const inter = Inter({ subsets: ["latin"] });
+import type { Metadata } from 'next';
+import NavBar from './NavBar';
+import './globals.css';
+import { SessionProvider } from 'next-auth/react';
 
 export const metadata: Metadata = {
-  title: "Issue Tracker",
-  description: "An elegant app to track your software bugs.",
+  title: 'Issue Tracker',
+  description: 'Track project issues',
 };
 
 export default function RootLayout({
@@ -18,11 +15,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-50 text-gray-900 min-h-screen`}>
-        <NavBar />
-        <main className="p-5 max-w-7xl mx-auto">
-          {children}
-        </main>
+      <body className="min-h-screen bg-white text-neutral-950">
+        <SessionProvider>
+          <NavBar />
+          <main className="p-5">{children}</main>
+        </SessionProvider>
       </body>
     </html>
   );

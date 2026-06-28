@@ -1,0 +1,93 @@
+'use client';
+
+import { useRouter, useSearchParams } from 'next/navigation';
+
+const statuses = [
+  { label: 'All Statuses', value: '' },
+  { label: 'Open',         value: 'OPEN' },
+  { label: 'In Progress',  value: 'IN_PROGRESS' },
+  { label: 'Closed',       value: 'CLOSED' },
+];
+
+const priorities = [
+  { label: 'All Priorities', value: '' },
+  { label: 'Critical',       value: 'CRITICAL' },
+  { label: 'High',           value: 'HIGH' },
+  { label: 'Medium',         value: 'MEDIUM' },
+  { label: 'Low',            value: 'LOW' },
+];
+
+const departments = [
+  { label: 'All Departments',   value: '' },
+  { label: 'Network',           value: 'Network' },
+  { label: 'IT',                value: 'IT' },
+  { label: 'Customer Service',  value: 'Customer Service' },
+  { label: 'Finance',           value: 'Finance' },
+  { label: 'HR',                value: 'HR' },
+];
+
+const orderByOptions = [
+  { label: 'Date Created', value: 'createdAt' },
+  { label: 'Title',        value: 'title' },
+  { label: 'Status',       value: 'status' },
+  { label: 'Priority',     value: 'priority' },
+];
+
+interface Props {
+  currentStatus?:     string;
+  currentPriority?:   string;
+  currentDepartment?: string;
+  currentOrderBy?:    string;
+  currentDirection?:  string;
+}
+
+export default function IssueFilters({
+  currentStatus     = '',
+  currentPriority   = '',
+  currentDepartment = '',
+  currentOrderBy    = 'createdAt',
+  currentDirection  = 'desc',
+}: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const update = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    // Reset to page 1 when filter/sort changes
+    params.delete('page');
+    router.replace(`/issues?${params.toString()}`);
+  };
+
+  const selectClass =
+    'text-sm rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-zinc-700 focus:outline-none focus:ring-2 focus:ring-[#00A651]/40 focus:border-[#00A651]';
+
+  return (
+    <div className="flex flex-wrap gap-3 mb-4">
+      <select className={selectClass} value={currentStatus} onChange={(e) => update('status', e.target.value)}>
+        {statuses.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+      </select>
+
+      <select className={selectClass} value={currentPriority} onChange={(e) => update('priority', e.target.value)}>
+        {priorities.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
+      </select>
+
+      <select className={selectClass} value={currentDepartment} onChange={(e) => update('department', e.target.value)}>
+        {departments.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+      </select>
+
+      <select className={selectClass} value={currentOrderBy} onChange={(e) => update('orderBy', e.target.value)}>
+        {orderByOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+
+      <select className={selectClass} value={currentDirection} onChange={(e) => update('direction', e.target.value)}>
+        <option value="desc">Newest First</option>
+        <option value="asc">Oldest First</option>
+      </select>
+    </div>
+  );
+}

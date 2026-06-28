@@ -1,56 +1,169 @@
-import prisma from "@/prisma/client";
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import DeleteButton from "./DeleteButton";
+import prisma from '@/prisma/client';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { auth } from '@/auth';
+import DeleteButton from './DeleteButton';
+import {
+  Avatar,
+  ImageThumbnails,
+  DueDateDisplay,
+  OverdueBadge,
+  PriorityBadge,
+  CommentSection,
+  ActivityTimeline,
+} from '@/app/components';
 
 interface Props {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function IssueDetailPage({ params }: Props) {
-  const resolvedParams = 'then' in params ? await params : params;
-  
+  const { id } = await params;
+  const session = await auth();
+
   const issue = await prisma.issue.findUnique({
-    where: { id: resolvedParams.id }
+    where: { id },
+    include: {
+      reporter: { select: { id: true, name: true, image: true } },
+      assignee: { select: { id: true, name: true, image: true } },
+      images: { select: { url: true }, orderBy: { createdAt: 'asc' } },
+      comments: {
+        include: { author: { select: { id: true, name: true, image: true } } },
+        orderBy: { createdAt: 'asc' },
+      },
+      activityLogs: {
+        include: { actor: { select: { name: true, image: true } } },
+        orderBy: { createdAt: 'desc' },
+      },
+    },
   });
 
   if (!issue) notFound();
 
+  const canDelete = session?.user
+    ? issue.reporterId === session.user.id || session.user.role === 'ADMIN'
+    : false;
+
+  const statusColor =
+    issue.status === 'OPEN'
+      ? 'bg-red-50 text-red-700 ring-red-600/10'
+      : issue.status === 'IN_PROGRESS'
+      ? 'bg-yellow-50 text-yellow-800 ring-yellow-600/20'
+      : 'bg-green-50 text-green-700 ring-green-600/20';
+
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
-      <div className="flex justify-between items-start mb-6 border-b pb-5">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{issue.title}</h1>
-          <div className="flex gap-2 items-center mt-2">
-            <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-semibold ring-1 ring-inset ${
-              issue.status === 'OPEN' 
-                ? 'bg-red-50 text-red-700 ring-red-600/10' 
-                : issue.status === 'IN_PROGRESS' 
-                ? 'bg-yellow-50 text-yellow-800 ring-yellow-600/20' 
-                : 'bg-green-50 text-green-700 ring-green-600/20'
-            }`}>
-              {issue.status}
-            </span>
-            <span className="text-sm text-gray-500">
-              Created: {new Date(issue.createdAt).toDateString()}
+    <div className="max-w-3xl mx-auto mt-8">
+      {/* Header */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-4">
+        <div className="flex justify-between items-start gap-4 mb-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              <h1 className="text-2xl font-bold text-gray-900 break-words">{issue.title}</h1>
+              {issue.dueDate && issue.status !== 'CLOSED' && new Date(issue.dueDate) < new Date() && (
+                <OverdueBadge />
+              )}
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <span
+                className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-semibold ring-1 ring-inset ${statusColor}`}
+              >
+                {issue.status.replace('_', ' ')}
+              </span>
+              <PriorityBadge priority={issue.priority} />
+              {issue.department && (
+                <span className="text-xs text-gray-500 bg-gray-100 rounded px-2 py-0.5">
+                  {issue.department}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {session?.user && (
+            <div className="flex gap-2 shrink-0">
+              <Link
+                href={`/issues/${issue.id}/edit`}
+                className="rounded-md bg-white border border-gray-300 px-3.5 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+              >
+                Edit
+              </Link>
+              <DeleteButton issueId={issue.id} canDelete={canDelete} />
+            </div>
+          )}
+        </div>
+
+        {/* Meta row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm border-t pt-4 mt-2">
+          <div>
+            <p className="text-xs uppercase text-gray-400 font-semibold mb-1">Reported by</p>
+            {issue.reporter ? (
+              <div className="flex items-center gap-2">
+                <Avatar image={issue.reporter.image} name={issue.reporter.name ?? 'User'} size={24} />
+                <span className="text-gray-700">{issue.reporter.name ?? '—'}</span>
+              </div>
+            ) : (
+              <span className="text-gray-400">—</span>
+            )}
+          </div>
+          <div>
+            <p className="text-xs uppercase text-gray-400 font-semibold mb-1">Assigned to</p>
+            {issue.assignee ? (
+              <div className="flex items-center gap-2">
+                <Avatar image={issue.assignee.image} name={issue.assignee.name ?? 'User'} size={24} />
+                <span className="text-gray-700">{issue.assignee.name}</span>
+              </div>
+            ) : (
+              <span className="text-gray-400">Unassigned</span>
+            )}
+          </div>
+          <div>
+            <p className="text-xs uppercase text-gray-400 font-semibold mb-1">Created</p>
+            <span className="text-gray-700">
+              {issue.createdAt.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
             </span>
           </div>
-        </div>
-        
-        <div className="flex gap-2">
-          <Link
-            href={`/issues/${issue.id}/edit`}
-            className="rounded-md bg-white border border-gray-300 px-3.5 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
-          >
-            Edit
-          </Link>
-          <DeleteButton issueId={issue.id} />
+          <div>
+            <p className="text-xs uppercase text-gray-400 font-semibold mb-1">Due Date</p>
+            <DueDateDisplay dueDate={issue.dueDate} status={issue.status} />
+          </div>
         </div>
       </div>
 
-      <div className="prose max-w-none pt-2">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-2">Description</h3>
-        <p className="whitespace-pre-wrap text-gray-700 text-sm leading-relaxed">{issue.description}</p>
+      {/* Description */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">
+          Description
+        </h2>
+        <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+          {issue.description}
+        </div>
+
+        {issue.images.length > 0 && (
+          <div className="mt-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-2">
+              Attachments
+            </h3>
+            <ImageThumbnails urls={issue.images.map((img) => img.url)} />
+          </div>
+        )}
+      </div>
+
+      {/* Comments */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-4">
+        <CommentSection
+          issueId={issue.id}
+          initialComments={issue.comments}
+          currentUserId={session?.user?.id ?? null}
+          userRole={session?.user?.role ?? null}
+        />
+      </div>
+
+      {/* Activity */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <ActivityTimeline activityLogs={issue.activityLogs} />
       </div>
     </div>
   );

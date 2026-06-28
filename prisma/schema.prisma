@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../app/generated/prisma"
@@ -12,16 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model Issue {
-  id          String   @id @default(uuid())
-  title       String   @db.VarChar(255)
-  description String   @db.Text
-  status      Status   @default(OPEN)
-  priority    Priority @default(MEDIUM)
-  category    Category @default(MOBILE_NETWORK)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
+// ─── Enums ────────────────────────────────────────────────────────────────────
 
 enum Status {
   OPEN
@@ -42,4 +28,127 @@ enum Category {
   TELEBIRR_BILLING
   CORE_INFRASTRUCTURE
   OTHER
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ─── Auth Models (required by @auth/prisma-adapter) ──────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+
+  reportedIssues  Issue[]       @relation("ReportedBy")
+  assignedIssues  Issue[]       @relation("AssignedTo")
+  comments        Comment[]
+  activityLogs    ActivityLog[]
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Core Application Models ──────────────────────────────────────────────────
+
+model Issue {
+  id          String    @id @default(uuid())
+  title       String    @db.VarChar(255)
+  description String    @db.Text
+  status      Status    @default(OPEN)
+  priority    Priority  @default(MEDIUM)
+  category    Category  @default(MOBILE_NETWORK)
+  department  String?
+  dueDate     DateTime?
+  reporterId  String?
+  assigneeId  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  reporter     User?         @relation("ReportedBy", fields: [reporterId], references: [id])
+  assignee     User?         @relation("AssignedTo", fields: [assigneeId], references: [id])
+  images       IssueImage[]
+  comments     Comment[]
+  activityLogs ActivityLog[]
+}
+
+model IssueImage {
+  id        String   @id @default(uuid())
+  url       String
+  issueId   String
+  createdAt DateTime @default(now())
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  authorId  String
+  issueId   String
+  createdAt DateTime @default(now())
+
+  author    User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  issue     Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  issueId   String
+  actorId   String?
+  action    String
+  oldValue  String?
+  newValue  String?
+  createdAt DateTime @default(now())
+
+  issue Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  actor User?  @relation(fields: [actorId], references: [id], onDelete: SetNull)
 }
