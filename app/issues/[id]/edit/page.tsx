@@ -1,31 +1,35 @@
-// app/issues/[id]/edit/page.tsx
-import prisma from "@/prisma/client";
-import { notFound } from "next/navigation";
-import EditIssueForm from "./EditIssueForm";
+import prisma from '@/prisma/client';
+import { notFound, redirect } from 'next/navigation';
+import { auth } from '@/auth';
+import EditIssueForm from './EditIssueForm';
 
 interface Props {
-  params: { id: string } | Promise<{ id: string }>;
-}
-
-interface Issue {
-  id: string;
-  title: string;
-  description: string;
-  status: 'OPEN' | 'IN_PROGRESS' | 'CLOSED';
-  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | null;
-  category?: 'MOBILE_NETWORK' | 'FIBER_BROADBAND' | 'TELEBIRR_BILLING' | 'CORE_INFRASTRUCTURE' | 'OTHER' | null;
-  createdAt: Date;
-  updatedAt: Date;
+  params: Promise<{ id: string }>;
 }
 
 export default async function EditIssuePage({ params }: Props) {
-  const resolvedParams = 'then' in params ? await params : params;
+  const { id } = await params;
+  const session = await auth();
 
-  const issue = (await prisma.issue.findUnique({
-    where: { id: resolvedParams.id }
-  })) as Issue | null;
+  if (!session?.user) redirect('/auth/signin');
+
+  const [issue, users] = await Promise.all([
+    prisma.issue.findUnique({ where: { id } }),
+    prisma.user.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    }),
+  ]);
 
   if (!issue) notFound();
 
-  return <EditIssueForm issue={issue} />;
+  // Only reporter or admin can access the edit page
+  if (issue.reporterId !== session.user.id && session.user.role !== 'ADMIN') {
+    redirect(`/issues/${id}`);
+  }
+
+  const isAdmin = session.user.role === 'ADMIN';
+
+  return <EditIssueForm issue={issue} isAdmin={isAdmin} users={users} />;
 }

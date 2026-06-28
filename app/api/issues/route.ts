@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       data: {
         title:       issueData.title,
         description: issueData.description,
+        status:      'OPEN',   // always starts open — only admins can change status
         priority:    issueData.priority   ?? 'MEDIUM',
         category:    issueData.category   ?? 'OTHER',
         department:  issueData.department ?? null,

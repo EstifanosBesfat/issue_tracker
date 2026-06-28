@@ -35,7 +35,8 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const updateData: Record<string, unknown> = {};
   if (data.title       !== undefined) updateData.title       = data.title;
   if (data.description !== undefined) updateData.description = data.description;
-  if (data.status      !== undefined) updateData.status      = data.status;
+  // Only admins can change status
+  if (data.status !== undefined && session.user.role === 'ADMIN') updateData.status = data.status;
   if (data.priority    !== undefined) updateData.priority    = data.priority;
   if (data.category    !== undefined) updateData.category    = data.category;
   if (data.department  !== undefined) updateData.department  = data.department;
