@@ -6,8 +6,10 @@ export const createIssueSchema = z.object({
   priority:    z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   category:    z.enum(['MOBILE_NETWORK', 'FIBER_BROADBAND', 'TELEBIRR_BILLING', 'CORE_INFRASTRUCTURE', 'OTHER']).optional(),
   department:  z.string().optional(),
-  dueDate:     z.string().datetime({ offset: true }).optional().nullable(),
-  assigneeId:  z.string().cuid().optional().nullable(),
+  // Accept any non-empty string for dueDate (the form gives YYYY-MM-DD, API converts to ISO)
+  dueDate:     z.string().optional().nullable(),
+  // Accept any string or null for assigneeId (empty string is coerced to null in the form)
+  assigneeId:  z.string().optional().nullable(),
   imageUrls:   z.array(z.string().url()).max(5).optional(),
 });
 

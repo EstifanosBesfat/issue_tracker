@@ -38,7 +38,7 @@ export default function NavBar() {
             alt="EthioTelecom"
             width={160}
             height={32}
-            style={{ objectFit: 'contain' }}
+            style={{ height: '32px', width: 'auto', objectFit: 'contain' }}
           />
         </Link>
 

@@ -143,8 +143,11 @@ export default function NewIssueForm({ users }: Props) {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700">Due Date</label>
+          <label className="block text-sm font-semibold text-gray-700">Due Date <span className="text-gray-400 font-normal">(optional)</span></label>
           <input type="date" {...register('dueDate')} className={cls} />
+          {errors.dueDate && (
+            <p className="mt-1 text-xs text-red-600">{errors.dueDate.message}</p>
+          )}
         </div>
 
         <div>
