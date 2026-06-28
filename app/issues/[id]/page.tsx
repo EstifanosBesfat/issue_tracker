@@ -40,6 +40,10 @@ export default async function IssueDetailPage({ params }: Props) {
 
   if (!issue) notFound();
 
+  const canEdit = session?.user
+    ? issue.reporterId === session.user.id || session.user.role === 'ADMIN'
+    : false;
+
   const canDelete = session?.user
     ? issue.reporterId === session.user.id || session.user.role === 'ADMIN'
     : false;
@@ -78,14 +82,16 @@ export default async function IssueDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {session?.user && (
+          {(canEdit || canDelete) && (
             <div className="flex gap-2 shrink-0">
-              <Link
-                href={`/issues/${issue.id}/edit`}
-                className="rounded-md bg-white border border-gray-300 px-3.5 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
-              >
-                Edit
-              </Link>
+              {canEdit && (
+                <Link
+                  href={`/issues/${issue.id}/edit`}
+                  className="rounded-md bg-white border border-gray-300 px-3.5 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+                >
+                  Edit
+                </Link>
+              )}
               <DeleteButton issueId={issue.id} canDelete={canDelete} />
             </div>
           )}

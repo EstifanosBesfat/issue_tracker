@@ -24,6 +24,11 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: 'Issue not found' }, { status: 404 });
   }
 
+  // Only the reporter or an admin can edit
+  if (issue.reporterId !== session.user.id && session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const data = validation.data;
 
   // Build update data (only fields present in the request)
