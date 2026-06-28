@@ -5,9 +5,24 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       // Google profile pictures (used for auth avatar)
-      new URL('https://lh3.googleusercontent.com/**'),
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
+      // DiceBear avatar service (used for demo seed users)
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com',
+        pathname: '/**',
+      },
+      // Cloudinary (used for issue image uploads)
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
     ],
-    qualities: [75],
   },
 };
 
