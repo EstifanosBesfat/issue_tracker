@@ -29,7 +29,7 @@ export default function NavBar() {
     : '?';
 
   return (
-    <nav className="flex items-center justify-between border-b mb-5 px-5 h-14 bg-white shadow-sm">
+    <nav className="flex items-center justify-between border-b mb-5 px-5 h-14 bg-[#00A651] shadow-sm">
       {/* Logo + Nav links */}
       <div className="flex items-center space-x-6">
         <Link href="/" className="flex items-center">
@@ -50,8 +50,8 @@ export default function NavBar() {
                 className={classnames(
                   'text-sm transition-colors',
                   link.href === currentPath
-                    ? 'text-[#00A651] font-semibold'
-                    : 'text-zinc-500 hover:text-zinc-800'
+                    ? 'text-white font-semibold underline underline-offset-4'
+                    : 'text-green-100 hover:text-white'
                 )}
               >
                 {link.label}
@@ -66,7 +66,7 @@ export default function NavBar() {
         {!session ? (
           <button
             onClick={() => signIn('google')}
-            className="text-sm text-zinc-500 hover:text-zinc-800 transition-colors"
+            className="text-sm text-green-100 hover:text-white transition-colors"
           >
             Sign In
           </button>
@@ -97,14 +97,14 @@ export default function NavBar() {
             )}
 
             {/* User name */}
-            <span className="text-sm text-zinc-700 hidden sm:inline">
+            <span className="text-sm text-white hidden sm:inline">
               {session.user.name}
             </span>
 
             {/* Sign out */}
             <button
               onClick={() => signOut()}
-              className="text-sm text-zinc-500 hover:text-zinc-800 transition-colors"
+              className="text-sm text-green-100 hover:text-white transition-colors"
             >
               Sign Out
             </button>
