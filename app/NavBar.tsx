@@ -3,8 +3,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import classnames from 'classnames';
+import dynamic from 'next/dynamic';
+
+const NotificationBell = dynamic(() => import('./components/NotificationBell'), {
+  ssr: false,
+});
 
 export default function NavBar() {
   const currentPath = usePathname();
@@ -18,7 +23,6 @@ export default function NavBar() {
       : []),
   ];
 
-  // Compute initials from user name for avatar fallback
   const initials = session?.user?.name
     ? session.user.name
         .split(' ')
@@ -29,9 +33,9 @@ export default function NavBar() {
     : '?';
 
   return (
-    <nav className="flex items-center justify-between border-b mb-5 px-5 h-14 bg-[#00A651] shadow-sm">
+    <nav className="flex items-center justify-between px-5 h-14 bg-white shadow-sm mb-5">
       {/* Logo + Nav links */}
-      <div className="flex items-center space-x-6">
+      <div className="flex items-center space-x-8">
         <Link href="/" className="flex items-center">
           <Image
             src="/tele horizontal.png"
@@ -48,10 +52,10 @@ export default function NavBar() {
               <Link
                 href={link.href}
                 className={classnames(
-                  'text-sm transition-colors',
+                  'text-sm font-medium transition-colors',
                   link.href === currentPath
-                    ? 'text-white font-semibold underline underline-offset-4'
-                    : 'text-green-100 hover:text-white'
+                    ? 'text-[#00A651] font-semibold'
+                    : 'text-gray-600 hover:text-[#00A651]'
                 )}
               >
                 {link.label}
@@ -63,16 +67,25 @@ export default function NavBar() {
 
       {/* Auth section */}
       <div className="flex items-center space-x-3">
+        {session && <NotificationBell />}
+
         {!session ? (
-          <button
-            onClick={() => signIn('google')}
-            className="text-sm text-green-100 hover:text-white transition-colors"
-          >
-            Sign In
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/auth/signin"
+              className="text-sm font-medium text-gray-600 hover:text-[#00A651] transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/auth/register"
+              className="text-sm font-semibold px-4 py-1.5 rounded-md bg-[#00A651] text-white hover:bg-[#007a3d] transition-colors"
+            >
+              Register
+            </Link>
+          </div>
         ) : (
           <>
-            {/* Avatar */}
             {session.user.image ? (
               <Image
                 src={session.user.image}
@@ -85,26 +98,19 @@ export default function NavBar() {
             ) : (
               <div
                 className="flex items-center justify-center rounded-full text-white text-xs font-semibold select-none"
-                style={{
-                  width: 32,
-                  height: 32,
-                  backgroundColor: '#00A651',
-                  flexShrink: 0,
-                }}
+                style={{ width: 32, height: 32, backgroundColor: '#00A651', flexShrink: 0 }}
               >
                 {initials}
               </div>
             )}
 
-            {/* User name */}
-            <span className="text-sm text-white hidden sm:inline">
+            <span className="text-sm text-gray-700 hidden sm:inline">
               {session.user.name}
             </span>
 
-            {/* Sign out */}
             <button
               onClick={() => signOut()}
-              className="text-sm text-green-100 hover:text-white transition-colors"
+              className="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors"
             >
               Sign Out
             </button>

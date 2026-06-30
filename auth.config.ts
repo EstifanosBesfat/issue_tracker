@@ -1,10 +1,20 @@
 // auth.config.ts — Edge-safe config (no Prisma, no Node.js built-ins)
 // Used by middleware.ts only
 import type { NextAuthConfig } from 'next-auth';
-import Google from 'next-auth/providers/google';
+import Credentials from 'next-auth/providers/credentials';
 
 export const authConfig: NextAuthConfig = {
-  providers: [Google],
+  providers: [
+    // Credentials provider — actual verification happens in auth.ts
+    // We include a stub here so next-auth knows the provider exists at the Edge level
+    Credentials({
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      authorize: async () => null, // real logic lives in auth.ts
+    }),
+  ],
   pages: {
     signIn: '/auth/signin',
     error: '/auth/signin',

@@ -7,3 +7,4 @@ export { default as PriorityBadge } from './PriorityBadge';
 export { default as ActivityTimeline } from './ActivityTimeline';
 export { default as CommentSection } from './CommentSection';
 export { default as Avatar } from './Avatar';
+export { default as NotificationBell } from './NotificationBell';

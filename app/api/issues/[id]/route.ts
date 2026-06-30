@@ -81,6 +81,41 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     });
   }
 
+  // ── Notifications ────────────────────────────────────────────────────────────
+
+  // 1. New assignee notification — "An issue was assigned to you"
+  if (
+    data.assigneeId !== undefined &&
+    data.assigneeId !== issue.assigneeId &&
+    data.assigneeId
+  ) {
+    await prisma.notification.create({
+      data: {
+        userId:  data.assigneeId,
+        issueId: id,
+        type:    'ASSIGNED',
+        message: `You have been assigned to issue: "${updatedIssue.title}"`,
+      },
+    });
+  }
+
+  // 2. Status change notification — tell the reporter their issue status changed
+  if (
+    data.status !== undefined &&
+    data.status !== issue.status &&
+    issue.reporterId &&
+    issue.reporterId !== session.user.id
+  ) {
+    await prisma.notification.create({
+      data: {
+        userId:  issue.reporterId,
+        issueId: id,
+        type:    'STATUS_CHANGED',
+        message: `Your issue "${updatedIssue.title}" status changed to ${data.status.replace('_', ' ')}.`,
+      },
+    });
+  }
+
   return NextResponse.json(updatedIssue);
 }
 
