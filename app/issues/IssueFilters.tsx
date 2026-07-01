@@ -115,15 +115,6 @@ export default function IssueFilters({
       <select className={selectClass} value={currentDepartment} onChange={(e) => update('department', e.target.value)}>
         {departments.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
       </select>
-
-      <select className={selectClass} value={currentOrderBy} onChange={(e) => update('orderBy', e.target.value)}>
-        {orderByOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
-
-      <select className={selectClass} value={currentDirection} onChange={(e) => update('direction', e.target.value)}>
-        <option value="desc">Newest First</option>
-        <option value="asc">Oldest First</option>
-      </select>
     </div>
   );
 }

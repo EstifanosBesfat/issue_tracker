@@ -127,13 +127,51 @@ export default async function IssuesPage({
           <table className="w-full caption-bottom text-sm">
             <thead className="[&_tr]:border-b bg-gray-50/50">
               <tr className="border-b transition-colors hover:bg-gray-50/50">
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Title</th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Status</th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Priority</th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 hidden md:table-cell">Department</th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 hidden md:table-cell">Due Date</th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 hidden lg:table-cell">Assigned To</th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Created</th>
+                {[
+                  { label: 'Title', value: 'title' },
+                  { label: 'Status', value: 'status' },
+                  { label: 'Priority', value: 'priority' },
+                  { label: 'Department', value: 'department', className: 'hidden md:table-cell', sortable: false },
+                  { label: 'Due Date', value: 'dueDate', className: 'hidden md:table-cell' },
+                  { label: 'Assigned To', value: 'assignee', className: 'hidden lg:table-cell', sortable: false },
+                  { label: 'Created', value: 'createdAt' },
+                ].map((column) => {
+                  const isSortable = column.sortable !== false;
+                  
+                  let nextDirection = 'desc';
+                  if (orderBy === column.value) {
+                    nextDirection = direction === 'asc' ? 'desc' : 'asc';
+                  }
+
+                  const p = new URLSearchParams(exportParams.toString());
+                  if (isSortable) {
+                    p.set('orderBy', column.value);
+                    p.set('direction', nextDirection);
+                  }
+
+                  return (
+                    <th key={column.value} className={`h-12 px-4 text-left align-middle font-medium text-gray-500 ${column.className || ''}`}>
+                      {isSortable ? (
+                        <Link
+                          href={`/issues?${p.toString()}`}
+                          className="inline-flex items-center gap-1 hover:text-gray-900 transition-colors"
+                        >
+                          {column.label}
+                          {orderBy === column.value && (
+                            <span className="text-gray-900">
+                              {direction === 'asc' ? '↑' : '↓'}
+                            </span>
+                          )}
+                          {orderBy !== column.value && (
+                            <span className="text-gray-300">↑↓</span>
+                          )}
+                        </Link>
+                      ) : (
+                        column.label
+                      )}
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody className="[&_tr:last-child]:border-0">
