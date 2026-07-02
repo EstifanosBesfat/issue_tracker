@@ -1,0 +1,12 @@
+.next
+node_modules
+.git
+.env
+.env.local
+*.log
+README.md
+docker-compose.yml
+.dockerignore
+prisma/seed.ts
+prisma/make-admin.ts
+__tests__
