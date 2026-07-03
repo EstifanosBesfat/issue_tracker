@@ -43,9 +43,7 @@ COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
 USER nextjs
 
-EXPOSE 3000
-
-ENV PORT=3000
+# Railway injects PORT at runtime — do not hardcode it
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
