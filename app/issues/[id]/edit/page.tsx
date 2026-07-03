@@ -1,6 +1,8 @@
 import prisma from '@/prisma/client';
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
+
+export const dynamic = 'force-dynamic';
 import EditIssueForm from './EditIssueForm';
 
 interface Props {

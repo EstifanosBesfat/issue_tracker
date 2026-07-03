@@ -10,14 +10,12 @@ RUN npm install --frozen-lockfile || npm install
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
-
 # Copy deps from previous stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client
+# Generate Prisma client (DATABASE_URL not needed for generate, only for migrations)
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 RUN npx prisma generate
 
 # Build Next.js

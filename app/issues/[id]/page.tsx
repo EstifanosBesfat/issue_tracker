@@ -2,6 +2,8 @@ import prisma from '@/prisma/client';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
+
+export const dynamic = 'force-dynamic';
 import DeleteButton from './DeleteButton';
 import {
   Avatar,
