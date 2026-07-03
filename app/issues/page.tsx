@@ -73,7 +73,9 @@ export default async function IssuesPage({
           images:   { select: { url: true }, take: 1 },
         },
       }),
-    ]);
+    ]); } catch (error) {
+    console.warn("⚠️ Database tables do not exist yet. Skipping query execution during build phase.");
+  }
 
   const totalPages  = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
