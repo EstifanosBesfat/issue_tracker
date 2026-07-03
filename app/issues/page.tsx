@@ -57,19 +57,23 @@ export default async function IssuesPage({
     ...(search     ? { title: { contains: search, mode: 'insensitive' as const } } : {}),
   };
 
-  const [total, issues] = await Promise.all([
-    prisma.issue.count({ where }),
-    prisma.issue.findMany({
-      where,
-      orderBy: { [orderBy]: direction },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      include: {
-        assignee: { select: { name: true } },
-        images:   { select: { url: true }, take: 1 },
-      },
-    }),
-  ]);
+  let total = 0;
+  let issues: any[] = [];
+
+  try {
+    [total, issues] = await Promise.all([
+      prisma.issue.count({ where }),
+      prisma.issue.findMany({
+        where,
+        orderBy: { [orderBy]: direction },
+        skip: (page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
+        include: {
+          assignee: { select: { name: true } },
+          images:   { select: { url: true }, take: 1 },
+        },
+      }),
+    ]);
 
   const totalPages  = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
