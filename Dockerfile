@@ -33,17 +33,19 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy only what's needed to run
+# 1. Copy the standalone build files into the root app directory
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/app/generated ./app/generated
+
+# 2. Explicitly copy your prisma configuration files
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+
+# 3. Fix permissions so the user can execute scripts
+RUN chown -R nextjs:nodejs /app
 
 USER nextjs
 
-# Railway injects PORT at runtime — do not hardcode it
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
