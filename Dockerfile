@@ -40,6 +40,8 @@ COPY --from=builder /app/.next/static ./.next/static
 
 # 2. Explicitly copy your prisma configuration files
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+COPY --from=deps /app/node_modules ./node_modules
 
 # 3. Fix permissions so the user can execute scripts
 RUN chown -R nextjs:nodejs /app
