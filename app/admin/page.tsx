@@ -20,19 +20,29 @@ export default async function AdminPage() {
     );
   }
 
-  const [users, issues, closedIssues, statusGroups, deptGroups] = await Promise.all([
-    prisma.user.findMany({ orderBy: { createdAt: 'desc' } }),
-    prisma.issue.findMany({
-      include: { assignee: { select: { name: true } }, reporter: { select: { name: true } } },
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.issue.findMany({
-      where: { status: 'CLOSED' },
-      select: { createdAt: true, updatedAt: true },
-    }),
-    prisma.issue.groupBy({ by: ['status'], _count: { id: true } }),
-    prisma.issue.groupBy({ by: ['department'], _count: { id: true } }),
-  ]);
+  let users: any[] = [];
+  let issues: any[] = [];
+  let closedIssues: any[] = [];
+  let statusGroups: any[] = [];
+  let deptGroups: any[] = [];
+
+  try {
+    [users, issues, closedIssues, statusGroups, deptGroups] = await Promise.all([
+      prisma.user.findMany({ orderBy: { createdAt: 'desc' } }),
+      prisma.issue.findMany({
+        include: { assignee: { select: { name: true } }, reporter: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.issue.findMany({
+        where: { status: 'CLOSED' },
+        select: { createdAt: true, updatedAt: true },
+      }),
+      prisma.issue.groupBy({ by: ['status'], _count: { id: true } }),
+      prisma.issue.groupBy({ by: ['department'], _count: { id: true } }),
+    ]);
+  } catch {
+    // DB not available at build time — use empty fallback
+  }
 
   const avgResolutionHours =
     closedIssues.length === 0

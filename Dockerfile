@@ -18,8 +18,9 @@ COPY . .
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 RUN npx prisma generate
 
-# Build Next.js
+# Build Next.js — DB is not available at build time, pages use force-dynamic + try/catch
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 RUN npm run build
 
 # ─── Stage 3: Production runtime ─────────────────────────────────────────────

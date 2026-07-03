@@ -16,8 +16,13 @@ interface Issue {
 }
 
 export default async function Home() {
-  const issues = (await prisma.issue.findMany()) as Issue[];
-  
+  let issues: Issue[] = [];
+  try {
+    issues = (await prisma.issue.findMany()) as Issue[];
+  } catch {
+    // DB not available at build time — use empty fallback
+  }
+
   const openCount = issues.filter(i => i.status === 'OPEN').length;
   const inProgressCount = issues.filter(i => i.status === 'IN_PROGRESS').length;
   const closedCount = issues.filter(i => i.status === 'CLOSED').length;
