@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 
 /* ------------------------------------------------------------------ */
 /* Context                                                              */
@@ -58,13 +59,26 @@ export function SidebarProvider({ children, className, ...props }: React.HTMLAtt
 /* ------------------------------------------------------------------ */
 
 export function Sidebar({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  const { open, isMobile } = useSidebar()
+  const { open, setOpen, isMobile } = useSidebar()
 
   if (isMobile) {
-    // On mobile, the sidebar is rendered as a Sheet (off-canvas). AppSidebar
-    // controls the Sheet directly using the open state, so we just return null
-    // here to avoid double-rendering on mobile.
-    return null
+    return (
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="left" className="w-[260px] p-0 flex flex-col">
+          <SheetTitle className="sr-only">Navigation Sidebar</SheetTitle>
+          <aside
+            data-slot="sidebar"
+            className={cn(
+              "flex flex-1 h-full w-full flex-col bg-sidebar text-sidebar-foreground",
+              className
+            )}
+            {...props}
+          >
+            {children}
+          </aside>
+        </SheetContent>
+      </Sheet>
+    )
   }
 
   return (

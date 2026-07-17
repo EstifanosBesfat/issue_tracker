@@ -198,9 +198,6 @@ export default function AppSidebar() {
           )
         )}
       </SidebarFooter>
-
-      {/* ---- Rail: collapse toggle ---- */}
-      <SidebarRail />
     </Sidebar>
   );
 }
