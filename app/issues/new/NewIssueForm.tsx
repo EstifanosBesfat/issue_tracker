@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { createIssueSchema } from '@/app/validationSchemas';
 import { ImageUpload } from '@/app/components';
@@ -22,6 +23,7 @@ interface Props {
 
 export default function NewIssueForm({ users }: Props) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,8 +55,9 @@ export default function NewIssueForm({ users }: Props) {
           : null;
 
       await axios.post('/api/issues', { ...data, dueDate, assigneeId, imageUrls });
+      // Invalidate React Query cache so the issues list refreshes automatically
+      await queryClient.invalidateQueries({ queryKey: ['issues'] });
       router.push('/issues');
-      router.refresh();
     } catch {
       setIsSubmitting(false);
       setError('An unexpected error occurred while saving.');

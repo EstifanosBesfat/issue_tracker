@@ -3,7 +3,14 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: 'standalone',
   transpilePackages: ['@prisma/client', '@prisma/adapter-pg', 'pg'],
+  // Skip type checking during Docker builds — run tsc locally instead
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       // Google profile pictures (used for auth avatar)
       {

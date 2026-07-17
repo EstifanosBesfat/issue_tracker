@@ -2,6 +2,9 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { Search } from 'lucide-react';
 
 const statuses = [
   { label: 'All Statuses', value: '' },
@@ -19,19 +22,12 @@ const priorities = [
 ];
 
 const departments = [
-  { label: 'All Departments',   value: '' },
-  { label: 'Network',           value: 'Network' },
-  { label: 'IT',                value: 'IT' },
-  { label: 'Customer Service',  value: 'Customer Service' },
-  { label: 'Finance',           value: 'Finance' },
-  { label: 'HR',                value: 'HR' },
-];
-
-const orderByOptions = [
-  { label: 'Date Created', value: 'createdAt' },
-  { label: 'Title',        value: 'title' },
-  { label: 'Status',       value: 'status' },
-  { label: 'Priority',     value: 'priority' },
+  { label: 'All Departments',  value: '' },
+  { label: 'Network',          value: 'Network' },
+  { label: 'IT',               value: 'IT' },
+  { label: 'Customer Service', value: 'Customer Service' },
+  { label: 'Finance',          value: 'Finance' },
+  { label: 'HR',               value: 'HR' },
 ];
 
 interface Props {
@@ -47,28 +43,31 @@ export default function IssueFilters({
   currentStatus     = '',
   currentPriority   = '',
   currentDepartment = '',
-  currentOrderBy    = 'createdAt',
-  currentDirection  = 'desc',
   currentSearch     = '',
 }: Props) {
-  const router = useRouter();
+  const router       = useRouter();
   const searchParams = useSearchParams();
   const [searchValue, setSearchValue] = useState(currentSearch);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debounceRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const update = useCallback((key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    params.delete('page');
-    router.replace(`/issues?${params.toString()}`);
-  }, [router, searchParams]);
+  const update = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+      params.delete('page'); // always reset to page 1 on filter change
+      router.replace(`/issues?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
-  // Debounce the search input by 400ms
+  // Debounce search input 400 ms
   useEffect(() => {
+    if (searchValue === currentSearch) return;
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       update('q', searchValue);
@@ -76,45 +75,58 @@ export default function IssueFilters({
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [searchValue, update]);
-
-  const selectClass =
-    'text-sm rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-zinc-700 focus:outline-none focus:ring-2 focus:ring-[#00A651]/40 focus:border-[#00A651]';
+  }, [searchValue, currentSearch, update]);
 
   return (
     <div className="flex flex-wrap gap-3 mb-4 items-center">
-      {/* Search input */}
+      {/* Search */}
       <div className="relative flex-1 min-w-[200px] max-w-xs">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
-        </svg>
-        <input
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
           type="text"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           placeholder="Search issues…"
-          className="w-full pl-9 pr-3 py-1.5 text-sm rounded-md border border-zinc-300 bg-white text-zinc-700 focus:outline-none focus:ring-2 focus:ring-[#00A651]/40 focus:border-[#00A651]"
+          className="pl-9"
+          id="issue-search"
         />
       </div>
 
-      <select className={selectClass} value={currentStatus} onChange={(e) => update('status', e.target.value)}>
-        {statuses.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-      </select>
+      {/* Status */}
+      <Select
+        id="issue-status"
+        value={currentStatus}
+        onChange={(e) => update('status', e.target.value)}
+        className="w-36"
+      >
+        {statuses.map((s) => (
+          <option key={s.value} value={s.value}>{s.label}</option>
+        ))}
+      </Select>
 
-      <select className={selectClass} value={currentPriority} onChange={(e) => update('priority', e.target.value)}>
-        {priorities.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
-      </select>
+      {/* Priority */}
+      <Select
+        id="issue-priority"
+        value={currentPriority}
+        onChange={(e) => update('priority', e.target.value)}
+        className="w-36"
+      >
+        {priorities.map((p) => (
+          <option key={p.value} value={p.value}>{p.label}</option>
+        ))}
+      </Select>
 
-      <select className={selectClass} value={currentDepartment} onChange={(e) => update('department', e.target.value)}>
-        {departments.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
-      </select>
+      {/* Department */}
+      <Select
+        id="issue-department"
+        value={currentDepartment}
+        onChange={(e) => update('department', e.target.value)}
+        className="w-40"
+      >
+        {departments.map((d) => (
+          <option key={d.value} value={d.value}>{d.label}</option>
+        ))}
+      </Select>
     </div>
   );
 }

@@ -50,44 +50,42 @@ async function main() {
   console.log('Created demo users.');
 
   // 2. Create Issues
-  const issue1 = await prisma.issue.create({
-    data: {
-      title: 'Fiber cut near Bole area',
-      description: 'Main fiber line seems to be damaged due to construction work near Bole road.',
-      status: 'OPEN',
-      priority: 'CRITICAL',
-      category: 'FIBER_BROADBAND',
-      department: 'Network',
-      reporterId: admin.id,
-      dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
-    },
+  const statuses = ['OPEN', 'IN_PROGRESS', 'CLOSED'] as const;
+  const priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
+  const categories = ['MOBILE_NETWORK', 'FIBER_BROADBAND', 'TELEBIRR_BILLING', 'CORE_INFRASTRUCTURE', 'OTHER'] as const;
+  const departments = ['Network', 'IT', 'Customer Service', 'Finance', 'HR'];
+  const userIds = [admin.id, staff1.id, staff2.id];
+
+  const issuesData = Array.from({ length: 50 }).map((_, i) => {
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const priority = priorities[Math.floor(Math.random() * priorities.length)];
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const department = departments[Math.floor(Math.random() * departments.length)];
+    const reporterId = userIds[Math.floor(Math.random() * userIds.length)];
+    // Randomly assign or leave unassigned
+    const assigneeId = Math.random() > 0.3 ? userIds[Math.floor(Math.random() * userIds.length)] : undefined;
+    // Random due date between today and 30 days from now, sometimes null
+    const dueDate = Math.random() > 0.5 ? new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000) : undefined;
+    
+    // Distribute creation date across the last 60 days
+    const createdAt = new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000);
+
+    return {
+      title: `Auto-generated Incident Ticket #${i + 1} - ${category.replace('_', ' ')}`,
+      description: `This is an auto-generated issue for testing pagination and performance. It relates to ${department} department and is categorized as ${category}.`,
+      status,
+      priority,
+      category,
+      department,
+      reporterId,
+      assigneeId,
+      dueDate,
+      createdAt,
+    };
   });
 
-  const issue2 = await prisma.issue.create({
-    data: {
-      title: 'Telebirr payment gateway timeout',
-      description: 'Users are reporting timeouts when trying to complete transactions via the mobile app.',
-      status: 'IN_PROGRESS',
-      priority: 'HIGH',
-      category: 'TELEBIRR_BILLING',
-      department: 'IT',
-      reporterId: staff1.id,
-      assigneeId: staff2.id,
-      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // In 2 days
-    },
-  });
-
-  const issue3 = await prisma.issue.create({
-    data: {
-      title: 'Mobile network degraded in CMC',
-      description: '4G speeds are significantly lower than usual in the CMC residential area.',
-      status: 'CLOSED',
-      priority: 'MEDIUM',
-      category: 'MOBILE_NETWORK',
-      department: 'Network',
-      reporterId: staff2.id,
-      assigneeId: staff1.id,
-    },
+  await prisma.issue.createMany({
+    data: issuesData,
   });
 
   console.log('Created demo issues.');

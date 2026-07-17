@@ -1,14 +1,16 @@
 import type { Metadata } from 'next';
-import NavBar from './NavBar';
 import './globals.css';
 import { SessionProvider } from 'next-auth/react';
 import { Geist } from "next/font/google";
+import Providers from './providers';
+import AppSidebar from './components/AppSidebar';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: 'Issue Tracker',
-  description: 'Track project issues',
+  title: 'EthioTelecom Issue Tracker',
+  description: 'Track network infrastructure incidents and service requests.',
 };
 
 export default function RootLayout({
@@ -18,10 +20,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`font-sans ${geist.variable}`}>
-      <body className="min-h-screen bg-white text-neutral-950">
+      <body className="min-h-screen bg-background text-foreground">
         <SessionProvider>
-          <NavBar />
-          <main className="p-5">{children}</main>
+          <Providers>
+            <SidebarProvider>
+              {/* Left: collapsible sidebar */}
+              <AppSidebar />
+
+              {/* Right: main content inset */}
+              <SidebarInset>
+                {/* Top bar with hamburger trigger */}
+                <header className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4">
+                  <SidebarTrigger className="-ml-1" />
+                </header>
+
+                {/* Page content */}
+                <main className="flex-1 overflow-y-auto p-5">
+                  {children}
+                </main>
+              </SidebarInset>
+            </SidebarProvider>
+          </Providers>
         </SessionProvider>
       </body>
     </html>

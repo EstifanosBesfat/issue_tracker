@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useState } from 'react';
 import { patchIssueSchema } from '@/app/validationSchemas';
@@ -28,6 +29,7 @@ interface Props {
 
 export default function EditIssueForm({ issue, isAdmin = false, users = [] }: Props) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { register, handleSubmit, formState: { errors } } = useForm<IssueFormData>({
     resolver: zodResolver(patchIssueSchema),
     defaultValues: {
@@ -58,6 +60,8 @@ export default function EditIssueForm({ issue, isAdmin = false, users = [] }: Pr
           ? data.assigneeId
           : null;
       await axios.patch(`/api/issues/${issue.id}`, { ...data, dueDate, assigneeId });
+      // Invalidate React Query cache so the issues list refreshes on navigation back
+      await queryClient.invalidateQueries({ queryKey: ['issues'] });
       router.push(`/issues/${issue.id}`);
       router.refresh();
     } catch {

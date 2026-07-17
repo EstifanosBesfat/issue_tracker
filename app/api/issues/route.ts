@@ -2,6 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/prisma/client';
 import { createIssueSchema } from '@/app/validationSchemas';
 import { auth } from '@/auth';
+import { parseIssueListParams, fetchIssueList } from '@/app/lib/issuesQuery';
+
+export async function GET(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const params = parseIssueListParams(searchParams);
+    const result = await fetchIssueList(params);
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('GET /api/issues error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest) {
   const session = await auth();
