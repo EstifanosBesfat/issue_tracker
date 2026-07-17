@@ -52,13 +52,14 @@ export default function NewIssueForm({ users }: Props) {
     setIsTriaging(true);
     try {
       const res = await axios.post('/api/ai-triage', { description });
-      const { priority, category, reasoning, error: apiError } = res.data;
+      const { priority, category, title, reasoning, error: apiError } = res.data;
       if (apiError) {
         setError(`AI Error: ${apiError}`);
         return;
       }
       setValue('priority', priority, { shouldDirty: true });
       setValue('category', category, { shouldDirty: true });
+      if (title) setValue('title', title, { shouldDirty: true });
       setTriageReasoning(reasoning);
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
