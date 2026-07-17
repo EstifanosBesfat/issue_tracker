@@ -19,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`font-sans ${geist.variable}`}>
-      <body className="min-h-screen bg-background text-foreground">
+    <html lang="en" className={`font-sans ${geist.variable}`} suppressHydrationWarning>
+      <body className="min-h-screen bg-background text-foreground" suppressHydrationWarning>
         <SessionProvider>
           <Providers>
             <SidebarProvider>
