@@ -4,6 +4,7 @@ import prisma from "@/prisma/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button, buttonVariants } from "@/components/ui/button";
+import AnalyticsCharts from "@/app/components/AnalyticsCharts";
 
 export const dynamic = 'force-dynamic';
 
@@ -106,6 +107,8 @@ export default async function Home() {
           </div>
         </CardContent>
       </Card>
+
+      <AnalyticsCharts />
 
       <Card className="shadow-sm border-border">
         <CardHeader>

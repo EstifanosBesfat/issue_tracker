@@ -27,15 +27,46 @@ export default function NewIssueForm({ users }: Props) {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTriaging, setIsTriaging] = useState(false);
+  const [triageReasoning, setTriageReasoning] = useState('');
 
   const {
     register,
     handleSubmit,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<IssueFormData>({
     resolver: zodResolver(createIssueSchema),
     defaultValues: { priority: 'MEDIUM', category: 'OTHER' },
   });
+
+  const runAiTriage = async () => {
+    const description = getValues('description');
+    if (!description || description.trim().length < 10) {
+      setError('Please enter a description (at least 10 characters) before using AI auto-fill.');
+      return;
+    }
+    setError('');
+    setTriageReasoning('');
+    setIsTriaging(true);
+    try {
+      const res = await axios.post('/api/ai-triage', { description });
+      const { priority, category, reasoning, error: apiError } = res.data;
+      if (apiError) {
+        setError(`AI Error: ${apiError}`);
+        return;
+      }
+      setValue('priority', priority, { shouldDirty: true });
+      setValue('category', category, { shouldDirty: true });
+      setTriageReasoning(reasoning);
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      setError(message ? `AI Error: ${message}` : 'AI triage failed — check server logs.');
+    } finally {
+      setIsTriaging(false);
+    }
+  };
 
   const onSubmit = async (data: IssueFormData) => {
     try {
@@ -86,13 +117,34 @@ export default function NewIssueForm({ users }: Props) {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700">Description</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-semibold text-gray-700">Description</label>
+            <button
+              type="button"
+              onClick={runAiTriage}
+              disabled={isTriaging}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold rounded-md bg-violet-50 border border-violet-200 text-violet-700 hover:bg-violet-100 disabled:opacity-60 px-2.5 py-1 transition-colors"
+              title="AI will read your description and auto-set Priority & Category"
+            >
+              {isTriaging ? (
+                <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              ) : (
+                <span>✨</span>
+              )}
+              {isTriaging ? 'Analyzing...' : 'AI Auto-Fill'}
+            </button>
+          </div>
           <textarea
             {...register('description')}
             rows={4}
             className={cls}
-            placeholder="Describe the problem..."
+            placeholder="Describe the problem in detail. The AI will read this to suggest priority and category."
           />
+          {triageReasoning && (
+            <p className="mt-1.5 text-xs text-violet-700 bg-violet-50 border border-violet-100 rounded-md px-3 py-2">
+              🤖 <strong>AI reasoning:</strong> {triageReasoning}
+            </p>
+          )}
           {errors.description && (
             <p className="mt-1 text-xs text-red-600">{errors.description.message}</p>
           )}

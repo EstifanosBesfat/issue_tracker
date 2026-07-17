@@ -5,6 +5,7 @@ import { Geist } from "next/font/google";
 import Providers from './providers';
 import AppSidebar from './components/AppSidebar';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import CommandPalette from './components/CommandPalette';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -32,6 +33,8 @@ export default function RootLayout({
                 {/* Top bar with hamburger trigger */}
                 <header className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-4">
                   <SidebarTrigger className="-ml-1" />
+                  <div className="flex-1" />
+                  <CommandPalette />
                 </header>
 
                 {/* Page content */}
