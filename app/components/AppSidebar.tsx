@@ -75,13 +75,18 @@ function UserInitials(name: string | null | undefined) {
 export default function AppSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const { open } = useSidebar();
+  const { open, setOpen, isMobile } = useSidebar();
 
   const isAdmin = session?.user?.role === "ADMIN";
   const links = isAdmin ? [...navItems, adminItem] : navItems;
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  // Close sidebar on mobile when a nav link is clicked
+  const handleNavClick = () => {
+    if (isMobile) setOpen(false);
+  };
 
   return (
     <Sidebar>
@@ -108,6 +113,7 @@ export default function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <Link
                 href={item.href}
+                onClick={handleNavClick}
                 className={[
                   "flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors",
                   "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
@@ -128,7 +134,7 @@ export default function AppSidebar() {
       {/* ---- Footer: User + NotificationBell + Sign Out ---- */}
       <SidebarFooter>
         {session ? (
-          <div className={`flex items-center gap-2 w-full ${open ? "" : "justify-center"}`}>
+          <div className={`flex items-center gap-2 w-full ${open ? "" : "justify-center flex-col"}`}>
             {/* Avatar */}
             {session.user?.image ? (
               <Image
@@ -149,7 +155,7 @@ export default function AppSidebar() {
               </div>
             )}
 
-            {open && (
+            {open ? (
               <>
                 <div className="flex flex-col flex-1 min-w-0">
                   <span className="truncate text-sm font-medium text-sidebar-foreground">
@@ -177,6 +183,23 @@ export default function AppSidebar() {
                   </button>
                 </div>
               </>
+            ) : (
+              /* Collapsed: show notification bell and sign out icon stacked */
+              <div className="flex flex-col items-center gap-2">
+                <NotificationBell />
+                <button
+                  onClick={() => signOut()}
+                  title="Sign out"
+                  className="rounded p-1 text-muted-foreground hover:text-destructive transition-colors"
+                  aria-label="Sign out"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                </button>
+              </div>
             )}
           </div>
         ) : (
