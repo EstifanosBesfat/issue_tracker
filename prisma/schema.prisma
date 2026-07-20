@@ -54,6 +54,7 @@ model User {
   comments        Comment[]
   activityLogs    ActivityLog[]
   notifications   Notification[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 // ─── Core Application Models ──────────────────────────────────────────────────
@@ -124,4 +125,17 @@ model Notification {
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
