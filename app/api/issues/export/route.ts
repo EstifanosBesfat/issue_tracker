@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/prisma/client';
+import { auth } from '@/auth';
 
 const VALID_STATUSES = ['OPEN', 'IN_PROGRESS', 'CLOSED'] as const;
 const VALID_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
@@ -17,6 +18,11 @@ function escapeCSV(value: string | null | undefined): string {
 }
 
 export async function GET(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
 
   const rawStatus = first(searchParams.get('status') ?? undefined);

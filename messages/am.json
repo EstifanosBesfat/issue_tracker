@@ -1,0 +1,40 @@
+{
+  "nav": {
+    "dashboard": "ዳሽቦርድ",
+    "issues": "ጉዳዮች",
+    "admin": "አስተዳዳሪ",
+    "staff": "ሰራተኛ",
+    "signIn": "ግባ",
+    "register": "ተመዝገብ",
+    "signOut": "ውጣ"
+  },
+  "common": {
+    "language": "ቋንቋ",
+    "english": "English",
+    "amharic": "አማርኛ"
+  },
+  "comments": {
+    "title": "አስተያየቶች ({count})",
+    "empty": "እስካሁን አስተያየት የለም።",
+    "placeholder": "አስተያየት ይጻፉ... ለማזכיר @ስም ይጠቀሙ",
+    "post": "አስተያየት ላክ",
+    "posting": "በመላክ ላይ…",
+    "delete": "ሰርዝ",
+    "signInToComment": "አስተያየት ለመስጠት ግቡ።",
+    "emptyError": "አስተያየት ባዶ ሊሆን አይችልም።",
+    "mentionHint": "@ ከስም በኋላ ይጻፉ ሰውን ለማሳወቅ"
+  },
+  "notifications": {
+    "title": "ማሳወቂያዎች",
+    "markAllRead": "ሁሉንም እንደተነበቡ ምልክት",
+    "empty": "እስካሁን ማሳወቂያ የለም",
+    "justNow": "አሁን",
+    "minutesAgo": "ከ{count} ደቂቃ በፊት",
+    "hoursAgo": "ከ{count} ሰዓት በፊት",
+    "daysAgo": "ከ{count} ቀን በፊት"
+  },
+  "issues": {
+    "newTicket": "አዲስ ትኬት",
+    "exportCsv": "CSV ይውጡ"
+  }
+}

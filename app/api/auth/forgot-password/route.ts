@@ -57,6 +57,14 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.findUnique({ where: { email } });
 
+    if (!user) {
+      console.info(`[password-reset] no account found for ${email}`);
+    } else if (!user.isActive) {
+      console.info(`[password-reset] inactive account for ${email}`);
+    } else if (!user.password) {
+      console.info(`[password-reset] account has no password for ${email}`);
+    }
+
     if (user?.isActive && user.password) {
       const { rawToken, tokenHash } = generateResetToken();
 
@@ -84,6 +92,12 @@ export async function POST(request: NextRequest) {
         emailSent = result.sent;
       } catch (error) {
         console.error('POST /api/auth/forgot-password email error:', error);
+      }
+
+      if (!emailSent) {
+        console.error(
+          `[password-reset] email was NOT sent to ${user.email}. Check RESEND_API_KEY on Railway and Resend dashboard logs.`
+        );
       }
 
       // In local dev without email configured, return the link in the API response

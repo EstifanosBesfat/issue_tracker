@@ -1,5 +1,6 @@
 // app/api/ai-triage/route.ts — powered by Groq (llama-3.3-70b-versatile)
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
 
 const VALID_PRIORITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
 const VALID_CATEGORIES = [
@@ -35,6 +36,11 @@ Respond ONLY with a raw JSON object (no markdown, no code fences):
 {"priority":"CRITICAL|HIGH|MEDIUM|LOW","category":"MOBILE_NETWORK|FIBER_BROADBAND|TELEBIRR_BILLING|CORE_INFRASTRUCTURE|OTHER","title":"concise incident title max 60 chars","reasoning":"one short sentence"}`;
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const body = await req.json().catch(() => ({}));
   const { description } = body as { description?: string };
 

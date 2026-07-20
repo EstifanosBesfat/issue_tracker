@@ -1,12 +1,23 @@
 import { Resend } from 'resend';
 
-const DEFAULT_FROM = 'EthioTelecom Issue Tracker <onboarding@resend.dev>';
+// Resend test sender — can only deliver to the email you used to sign up at resend.com
+const DEFAULT_FROM = 'onboarding@resend.dev';
 
 type SendPasswordResetEmailParams = {
   to: string;
   name: string | null;
   resetUrl: string;
 };
+
+function getResendFromAddress() {
+  const configured = process.env.EMAIL_FROM?.trim();
+  if (!configured) return DEFAULT_FROM;
+
+  // Accept both "onboarding@resend.dev" and "Name <onboarding@resend.dev>"
+  if (configured.includes('@')) return configured;
+
+  return DEFAULT_FROM;
+}
 
 export async function sendPasswordResetEmail({
   to,
@@ -29,17 +40,18 @@ export async function sendPasswordResetEmail({
     </div>
   `.trim();
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? DEFAULT_FROM;
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const from = getResendFromAddress();
 
   if (!apiKey) {
-    console.info('[password-reset] RESEND_API_KEY not set — reset link logged for development:');
-    console.info(`[password-reset] ${to}: ${resetUrl}`);
+    const message = `[password-reset] RESEND_API_KEY is not set (${process.env.NODE_ENV ?? 'unknown env'})`;
+    console.error(message);
+    console.error(`[password-reset] reset link for ${to}: ${resetUrl}`);
     return { sent: false };
   }
 
   const resend = new Resend(apiKey);
-  const { error } = await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from,
     to: [to],
     subject,
@@ -47,8 +59,10 @@ export async function sendPasswordResetEmail({
   });
 
   if (error) {
+    console.error('[password-reset] Resend API error:', error);
     throw new Error(`Failed to send password reset email: ${error.message}`);
   }
 
+  console.info(`[password-reset] email sent to ${to} (id: ${data?.id ?? 'unknown'})`);
   return { sent: true };
 }

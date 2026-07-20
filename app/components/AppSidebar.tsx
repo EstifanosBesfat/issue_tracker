@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +20,7 @@ import { Separator } from "@/components/ui/separator";
 
 const navItems = [
   {
-    label: "Dashboard",
+    labelKey: "dashboard" as const,
     href: "/",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -31,7 +32,7 @@ const navItems = [
     ),
   },
   {
-    label: "Issues",
+    labelKey: "issues" as const,
     href: "/issues",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -46,7 +47,7 @@ const navItems = [
 ];
 
 const adminItem = {
-  label: "Admin",
+  labelKey: "admin" as const,
   href: "/admin",
   icon: (
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -66,6 +67,7 @@ function UserInitials(name: string | null | undefined) {
 }
 
 export default function AppSidebar() {
+  const t = useTranslations('nav');
   const pathname = usePathname();
   const { data: session } = useSession();
   const { open, setOpen, isMobile } = useSidebar();
@@ -117,7 +119,7 @@ export default function AppSidebar() {
                 ].filter(Boolean).join(" ")}
               >
                 <span className="shrink-0">{item.icon}</span>
-                <SidebarMenuLabel>{item.label}</SidebarMenuLabel>
+                <SidebarMenuLabel>{t(item.labelKey)}</SidebarMenuLabel>
               </Link>
             </SidebarMenuItem>
           ))}
@@ -155,7 +157,7 @@ export default function AppSidebar() {
                     {session.user?.name}
                   </span>
                   <span className="truncate text-xs text-muted-foreground">
-                    {isAdmin ? "Admin" : "Staff"}
+                    {isAdmin ? t('admin') : t('staff')}
                   </span>
                 </div>
 
@@ -163,9 +165,9 @@ export default function AppSidebar() {
                   <Separator orientation="vertical" className="h-5" />
                   <button
                     onClick={() => signOut()}
-                    title="Sign out"
+                    title={t('signOut')}
                     className="rounded p-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
-                    aria-label="Sign out"
+                    aria-label={t('signOut')}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -178,9 +180,9 @@ export default function AppSidebar() {
             ) : (
               <button
                 onClick={() => signOut()}
-                title="Sign out"
+                title={t('signOut')}
                 className="rounded p-1 text-muted-foreground hover:text-destructive transition-colors"
-                aria-label="Sign out"
+                aria-label={t('signOut')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -197,13 +199,13 @@ export default function AppSidebar() {
                 href="/auth/signin"
                 className="flex-1 text-center text-sm text-muted-foreground hover:text-sidebar-foreground transition-colors"
               >
-                Sign In
+                {t('signIn')}
               </Link>
               <Link
                 href="/auth/register"
                 className="flex-1 text-center text-sm font-semibold rounded-md bg-[#00A651] text-white px-3 py-1 hover:bg-[#007a3d] transition-colors"
               >
-                Register
+                {t('register')}
               </Link>
             </div>
           )

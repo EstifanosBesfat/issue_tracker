@@ -1,6 +1,7 @@
 // app/api/analytics/route.ts
 import { NextResponse } from "next/server";
 import prisma from "@/prisma/client";
+import { auth } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,11 @@ function getLast7Days() {
 }
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const [allIssues, last7DaysIssues] = await Promise.all([
       prisma.issue.findMany({

@@ -21,14 +21,45 @@ const CATEGORY_COLORS: Record<string, string> = {
   Other: "#64748b",
 };
 
+const EMPTY_ANALYTICS: AnalyticsData = {
+  byCategory: [],
+  byStatus: [],
+  trend: [],
+};
+
+function isAnalyticsData(value: unknown): value is AnalyticsData {
+  if (!value || typeof value !== 'object') return false;
+  const data = value as AnalyticsData;
+  return (
+    Array.isArray(data.byCategory) &&
+    Array.isArray(data.byStatus) &&
+    Array.isArray(data.trend)
+  );
+}
+
 export default function AnalyticsCharts() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [requiresAuth, setRequiresAuth] = useState(false);
 
   useEffect(() => {
-    fetch("/api/analytics")
-      .then((r) => r.json())
-      .then(setData)
+    fetch('/api/analytics')
+      .then(async (res) => {
+        if (res.status === 401) {
+          setRequiresAuth(true);
+          return null;
+        }
+
+        const json = await res.json();
+        if (!res.ok || !isAnalyticsData(json)) {
+          throw new Error('Invalid analytics response');
+        }
+
+        return json;
+      })
+      .then((nextData) => {
+        if (nextData) setData(nextData);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -51,7 +82,26 @@ export default function AnalyticsCharts() {
     );
   }
 
+  if (requiresAuth) {
+    return (
+      <Card className="shadow-sm border-border mb-6">
+        <CardContent className="py-8 text-center text-sm text-muted-foreground">
+          <a href="/auth/signin" className="font-semibold text-[#00A651] hover:underline">
+            Sign in
+          </a>{' '}
+          to view analytics charts.
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!data) return null;
+
+  const chartData = {
+    byCategory: data.byCategory.length > 0 ? data.byCategory : EMPTY_ANALYTICS.byCategory,
+    byStatus: data.byStatus.length > 0 ? data.byStatus : EMPTY_ANALYTICS.byStatus,
+    trend: data.trend.length > 0 ? data.trend : EMPTY_ANALYTICS.trend,
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -63,7 +113,7 @@ export default function AnalyticsCharts() {
         </CardHeader>
         <CardContent className="pl-0">
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={data.byCategory} margin={{ top: 4, right: 16, left: -8, bottom: 4 }}>
+            <BarChart data={chartData.byCategory} margin={{ top: 4, right: 16, left: -8, bottom: 4 }}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
               <XAxis
                 dataKey="name"
@@ -87,7 +137,7 @@ export default function AnalyticsCharts() {
                 cursor={{ fill: "var(--accent)" }}
               />
               <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                {data.byCategory.map((entry) => (
+                {chartData.byCategory.map((entry) => (
                   <rect
                     key={entry.name}
                     fill={CATEGORY_COLORS[entry.name] ?? "#64748b"}
@@ -107,7 +157,7 @@ export default function AnalyticsCharts() {
         </CardHeader>
         <CardContent className="pl-0">
           <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={data.trend} margin={{ top: 4, right: 16, left: -8, bottom: 4 }}>
+            <LineChart data={chartData.trend} margin={{ top: 4, right: 16, left: -8, bottom: 4 }}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
               <XAxis
                 dataKey="label"
