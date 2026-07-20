@@ -2,8 +2,10 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 
-# Copy package files
+# Copy package files + Prisma schema (needed for postinstall prisma generate)
 COPY package.json package-lock.json ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./prisma.config.ts
 RUN npm install --frozen-lockfile || npm install
 
 # ─── Stage 2: Build the application ──────────────────────────────────────────
