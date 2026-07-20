@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
@@ -78,16 +79,20 @@ export default function AppSidebar() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  // Close sidebar on mobile when a nav link is clicked
+  // Close sidebar on mobile when navigating
   const handleNavClick = () => {
     if (isMobile) setOpen(false);
   };
+
+  useEffect(() => {
+    if (isMobile) setOpen(false);
+  }, [pathname, isMobile, setOpen]);
 
   return (
     <Sidebar>
       {/* ---- Header: Logo ---- */}
       <SidebarHeader>
-        <Link href="/" className="flex items-center gap-2 overflow-hidden">
+        <Link href="/" onClick={handleNavClick} className="flex items-center gap-2 overflow-hidden">
           <div className="shrink-0">
             <Image
               src="/tele horizontal.png"
@@ -193,22 +198,26 @@ export default function AppSidebar() {
             )}
           </div>
         ) : (
-          open && (
-            <div className="flex gap-2 w-full">
+          <div className={`flex gap-2 w-full ${open ? '' : 'flex-col items-center'}`}>
               <Link
                 href="/auth/signin"
-                className="flex-1 text-center text-sm text-muted-foreground hover:text-sidebar-foreground transition-colors"
+                onClick={handleNavClick}
+                className={`text-center text-sm text-muted-foreground hover:text-sidebar-foreground transition-colors ${
+                  open ? 'flex-1' : 'px-2 py-1'
+                }`}
               >
                 {t('signIn')}
               </Link>
               <Link
                 href="/auth/register"
-                className="flex-1 text-center text-sm font-semibold rounded-md bg-[#00A651] text-white px-3 py-1 hover:bg-[#007a3d] transition-colors"
+                onClick={handleNavClick}
+                className={`text-center text-sm font-semibold rounded-md bg-[#00A651] text-white hover:bg-[#007a3d] transition-colors ${
+                  open ? 'flex-1 px-3 py-1' : 'px-2 py-1'
+                }`}
               >
-                {t('register')}
+                {open ? t('register') : '+'}
               </Link>
             </div>
-          )
         )}
       </SidebarFooter>
     </Sidebar>
