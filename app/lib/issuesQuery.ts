@@ -25,7 +25,7 @@ export interface ParsedIssueParams {
   page:       number;
   status?:    string;
   priority?:  string;
-  department?: string;
+  divisionId?: string;
   search?:    string;
   rawOrderBy: string;
   direction:  'asc' | 'desc';
@@ -50,7 +50,7 @@ export function parseIssueListParams(
 
   const rawStatus     = get('status');
   const rawPriority   = get('priority');
-  const rawDepartment = get('department');
+  const rawDivisionId = get('divisionId');
   const rawOrderBy    = get('orderBy');
   const rawDirection  = get('direction');
   const rawPage       = get('page');
@@ -60,7 +60,7 @@ export function parseIssueListParams(
     ? (rawStatus as Status) : undefined;
   const priority   = (VALID_PRIORITIES as readonly string[]).includes(rawPriority)
     ? (rawPriority as Priority) : undefined;
-  const department = rawDepartment || undefined;
+  const divisionId = rawDivisionId || undefined;
   const orderBy    = (VALID_ORDER_BY as readonly string[]).includes(rawOrderBy)
     ? (rawOrderBy as OrderBy) : 'createdAt';
   const direction  = rawDirection === 'asc' ? 'asc' : 'desc';
@@ -70,13 +70,13 @@ export function parseIssueListParams(
   const where = {
     ...(status     ? { status }     : {}),
     ...(priority   ? { priority }   : {}),
-    ...(department ? { department } : {}),
+    ...(divisionId ? { divisionId } : {}),
     ...(search     ? { title: { contains: search, mode: 'insensitive' as const } } : {}),
   };
 
   const skip = (page - 1) * PAGE_SIZE;
 
-  return { where, orderBy: { [orderBy]: direction }, skip, take: PAGE_SIZE, page, status, priority, department, search, rawOrderBy: orderBy, direction };
+  return { where, orderBy: { [orderBy]: direction }, skip, take: PAGE_SIZE, page, status, priority, divisionId, search, rawOrderBy: orderBy, direction };
 }
 
 /**
@@ -93,6 +93,7 @@ export async function fetchIssueList(params: ParsedIssueParams) {
       take:    params.take,
       include: {
         assignee: { select: { name: true } },
+        division: { select: { id: true, name: true } },
       },
     }),
   ]);

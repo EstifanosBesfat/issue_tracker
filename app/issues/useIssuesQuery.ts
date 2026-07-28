@@ -7,7 +7,7 @@ export interface IssueQueryParams {
   q?:          string;
   status?:     string;
   priority?:   string;
-  department?: string;
+  divisionId?: string;
   orderBy?:    string;
   direction?:  string;
   page?:       string | number;
@@ -18,7 +18,7 @@ async function fetchIssues(params: IssueQueryParams): Promise<IssueListResponse>
   if (params.q)          sp.set('q',          params.q);
   if (params.status)     sp.set('status',     params.status);
   if (params.priority)   sp.set('priority',   params.priority);
-  if (params.department) sp.set('department', params.department);
+  if (params.divisionId) sp.set('divisionId', params.divisionId);
   if (params.orderBy)    sp.set('orderBy',    params.orderBy);
   if (params.direction)  sp.set('direction',  params.direction);
   if (params.page)       sp.set('page',       String(params.page));

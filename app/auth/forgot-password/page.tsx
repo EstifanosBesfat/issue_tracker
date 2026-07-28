@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
         {error && (
           <div
             role="alert"
-            className="w-full rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
+            className="w-full rounded-lg bg-danger/10 border border-danger/20 px-4 py-3 text-sm text-danger"
           >
             {error}
           </div>
@@ -77,18 +77,18 @@ export default function ForgotPasswordPage() {
         {successMessage && (
           <div
             role="status"
-            className="w-full rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 space-y-3"
+            className="w-full rounded-lg bg-success/10 border border-success/20 px-4 py-3 text-sm text-success space-y-3"
           >
             <p>{successMessage}</p>
             {devResetUrl && (
-              <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-900">
+              <div className="rounded-md border border-warning/30 bg-warning/15 px-3 py-2 text-warning-foreground">
                 <p className="font-medium">Development mode</p>
                 <p className="mt-1 text-xs">
                   Email is not configured yet, so the reset link is shown here instead of being sent to Gmail.
                 </p>
                 <a
                   href={devResetUrl}
-                  className="mt-2 inline-block break-all text-xs font-semibold text-[#00A651] hover:underline"
+                  className="mt-2 inline-block break-all text-xs font-semibold text-secondary hover:underline"
                 >
                   Open reset link
                 </a>
@@ -109,7 +109,7 @@ export default function ForgotPasswordPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00A651]/40 focus:border-[#00A651]"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary"
               placeholder="you@ethiotelecom.et"
             />
           </div>
@@ -117,8 +117,8 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#00A651] disabled:opacity-60"
-            style={{ backgroundColor: '#00A651' }}
+            className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary disabled:opacity-60"
+            style={{ backgroundColor: 'var(--primary)' }}
           >
             {loading ? 'Sending link…' : 'Send Reset Link'}
           </button>
@@ -126,7 +126,7 @@ export default function ForgotPasswordPage() {
 
         <p className="text-sm text-gray-500">
           Remember your password?{' '}
-          <Link href="/auth/signin" className="font-semibold text-[#00A651] hover:underline">
+          <Link href="/auth/signin" className="font-semibold text-secondary hover:underline">
             Sign In
           </Link>
         </p>

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
 
 interface Notification {
   id: string;
@@ -14,11 +13,15 @@ interface Notification {
   issue: { id: string; title: string };
 }
 
+// Falls back to this interval only if the SSE stream is unavailable
+// (e.g. proxy strips streaming responses).
+const FALLBACK_POLL_MS = 60_000;
+
 export default function NotificationBell() {
-  const t = useTranslations('notifications');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [live, setLive] = useState(false);
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const rootRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -48,11 +51,65 @@ export default function NotificationBell() {
     }
   }, []);
 
+  // Initial fetch, then switch to a live SSE connection for instant push.
+  // Falls back to periodic polling if the stream can't connect.
   useEffect(() => {
     setMounted(true);
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30_000);
-    return () => clearInterval(interval);
+
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
+    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+    let closedByCleanup = false;
+
+    const startPolling = () => {
+      if (pollInterval) return;
+      pollInterval = setInterval(fetchNotifications, FALLBACK_POLL_MS);
+    };
+
+    const stopPolling = () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    };
+
+    const connect = () => {
+      const source = new EventSource('/api/notifications/stream');
+
+      source.addEventListener('connected', () => {
+        setLive(true);
+        stopPolling();
+      });
+
+      source.addEventListener('notification', (event: MessageEvent) => {
+        try {
+          const notification: Notification = JSON.parse(event.data);
+          setNotifications((prev) => [notification, ...prev].slice(0, 20));
+        } catch {
+          // ignore malformed payload
+        }
+      });
+
+      source.onerror = () => {
+        setLive(false);
+        source.close();
+        startPolling();
+        if (!closedByCleanup) {
+          reconnectTimeout = setTimeout(connect, 5_000);
+        }
+      };
+
+      return source;
+    };
+
+    const eventSource = connect();
+
+    return () => {
+      closedByCleanup = true;
+      eventSource.close();
+      stopPolling();
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+    };
   }, [fetchNotifications]);
 
   useEffect(() => {
@@ -101,11 +158,12 @@ export default function NotificationBell() {
   const timeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
     const minutes = Math.floor(diff / 60_000);
-    if (minutes < 1) return t('justNow');
-    if (minutes < 60) return t('minutesAgo', { count: minutes });
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return t('hoursAgo', { count: hours });
-    return t('daysAgo', { count: Math.floor(hours / 24) });
+    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
   };
 
   return (
@@ -113,8 +171,8 @@ export default function NotificationBell() {
       <button
         ref={buttonRef}
         onClick={() => { setOpen((v) => !v); if (!open) fetchNotifications(); }}
-        className="relative flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:text-[#00A651] hover:bg-green-50 transition-colors"
-        aria-label={t('title')}
+        className="relative flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:text-secondary hover:bg-secondary/10 transition-colors"
+        aria-label="Notifications"
         aria-expanded={open}
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -122,7 +180,7 @@ export default function NotificationBell() {
         </svg>
 
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold">
+          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full bg-danger text-danger-foreground text-[10px] font-bold">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -135,13 +193,22 @@ export default function NotificationBell() {
           className="fixed z-[100] bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <span className="text-sm font-semibold text-gray-800">{t('title')}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-semibold text-gray-800">Notifications</span>
+              <span
+                className={`flex items-center gap-1 text-[10px] font-medium ${live ? 'text-success' : 'text-gray-400'}`}
+                title={live ? 'Real-time connection active' : 'Polling fallback active'}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full ${live ? 'bg-success animate-pulse' : 'bg-gray-300'}`} />
+                {live ? 'Live' : 'Polling'}
+              </span>
+            </div>
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
-                className="text-xs text-[#00A651] hover:underline font-medium"
+                className="text-xs text-secondary hover:underline font-medium"
               >
-                {t('markAllRead')}
+                Mark all read
               </button>
             )}
           </div>
@@ -149,7 +216,7 @@ export default function NotificationBell() {
           <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
             {notifications.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-gray-400">
-                {t('empty')}
+                No notifications yet
               </div>
             ) : (
               notifications.map((n) => (
@@ -157,9 +224,9 @@ export default function NotificationBell() {
                   key={n.id}
                   href={`/issues/${n.issue.id}`}
                   onClick={() => { markOneRead(n.id); setOpen(false); }}
-                  className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${!n.read ? 'bg-green-50/50' : ''}`}
+                  className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${!n.read ? 'bg-secondary/5' : ''}`}
                 >
-                  <div className={`mt-0.5 flex-shrink-0 w-2 h-2 rounded-full ${!n.read ? 'bg-[#00A651]' : 'bg-gray-300'}`} />
+                  <div className={`mt-0.5 flex-shrink-0 w-2 h-2 rounded-full ${!n.read ? 'bg-secondary' : 'bg-gray-300'}`} />
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm leading-snug ${!n.read ? 'font-medium text-gray-900' : 'text-gray-600'}`}>
                       {n.message}

@@ -28,6 +28,7 @@ export default async function IssueDetailPage({ params }: Props) {
     include: {
       reporter: { select: { id: true, name: true, image: true } },
       assignee: { select: { id: true, name: true, image: true } },
+      division: { select: { id: true, name: true } },
       images: { select: { url: true }, orderBy: { createdAt: 'asc' } },
       comments: {
         include: { author: { select: { id: true, name: true, image: true } } },
@@ -52,10 +53,10 @@ export default async function IssueDetailPage({ params }: Props) {
 
   const statusColor =
     issue.status === 'OPEN'
-      ? 'bg-red-50 text-red-700 ring-red-600/10'
+      ? 'bg-danger/10 text-danger ring-danger/20'
       : issue.status === 'IN_PROGRESS'
-      ? 'bg-yellow-50 text-yellow-800 ring-yellow-600/20'
-      : 'bg-green-50 text-green-700 ring-green-600/20';
+      ? 'bg-warning/15 text-warning-foreground ring-warning/30'
+      : 'bg-success/10 text-success ring-success/20';
 
   return (
     <div className="max-w-3xl mx-auto mt-8">
@@ -76,9 +77,9 @@ export default async function IssueDetailPage({ params }: Props) {
                 {issue.status.replace('_', ' ')}
               </span>
               <PriorityBadge priority={issue.priority} />
-              {issue.department && (
+              {issue.division && (
                 <span className="text-xs text-gray-500 bg-gray-100 rounded px-2 py-0.5">
-                  {issue.department}
+                  {issue.division.name}
                 </span>
               )}
             </div>

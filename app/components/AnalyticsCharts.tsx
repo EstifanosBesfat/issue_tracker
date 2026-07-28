@@ -14,11 +14,11 @@ interface AnalyticsData {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Mobile: "#00A651",
-  Fiber: "#0284c7",
-  Telebirr: "#d97706",
-  "Core Infra": "#7c3aed",
-  Other: "#64748b",
+  Mobile: "#8DC63F",       // brand lime
+  Fiber: "#0072BC",        // brand deep blue
+  Telebirr: "#FFC20E",     // warning
+  "Core Infra": "#008FD5", // info
+  Other: "#64748b",        // neutral gray
 };
 
 const EMPTY_ANALYTICS: AnalyticsData = {
@@ -86,7 +86,7 @@ export default function AnalyticsCharts() {
     return (
       <Card className="shadow-sm border-border mb-6">
         <CardContent className="py-8 text-center text-sm text-muted-foreground">
-          <a href="/auth/signin" className="font-semibold text-[#00A651] hover:underline">
+          <a href="/auth/signin" className="font-semibold text-secondary hover:underline">
             Sign in
           </a>{' '}
           to view analytics charts.
@@ -184,9 +184,9 @@ export default function AnalyticsCharts() {
                 type="monotone"
                 dataKey="count"
                 name="New Tickets"
-                stroke="#00A651"
+                stroke="#0072BC"
                 strokeWidth={2.5}
-                dot={{ r: 4, fill: "#00A651", strokeWidth: 0 }}
+                dot={{ r: 4, fill: "#0072BC", strokeWidth: 0 }}
                 activeDot={{ r: 6 }}
               />
             </LineChart>

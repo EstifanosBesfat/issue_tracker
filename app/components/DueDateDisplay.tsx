@@ -20,7 +20,7 @@ export default function DueDateDisplay({ dueDate, status }: Props) {
 
   if (dueDateStatus === 'approaching') {
     return (
-      <span className="text-sm font-semibold text-amber-600">
+      <span className="text-sm font-semibold text-warning-foreground">
         Due: {formatDueDate(dueDate)}
       </span>
     );

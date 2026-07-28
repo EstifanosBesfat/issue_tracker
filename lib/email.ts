@@ -31,7 +31,7 @@ export async function sendPasswordResetEmail({
       <p>${greeting}</p>
       <p>We received a request to reset your password. Click the button below to choose a new one.</p>
       <p style="margin: 24px 0;">
-        <a href="${resetUrl}" style="background-color: #00A651; color: #ffffff; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+        <a href="${resetUrl}" style="background-color: #8DC63F; color: #14210b; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
           Reset Password
         </a>
       </p>

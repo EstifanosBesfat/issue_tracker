@@ -1,9 +1,9 @@
-interface StatusGroup { status: string; _count: { id: number } }
-interface DeptGroup   { department: string | null; _count: { id: number } }
+interface StatusGroup   { status: string; _count: { id: number } }
+interface DivisionGroup { division: string | null; _count: { id: number } }
 
 interface Props {
   statusGroups: StatusGroup[];
-  deptGroups: DeptGroup[];
+  deptGroups: DivisionGroup[];
   avgResolutionHours: number;
 }
 
@@ -11,9 +11,9 @@ const STATUS_LABELS: Record<string, string> = {
   OPEN: 'Open', IN_PROGRESS: 'In Progress', CLOSED: 'Closed',
 };
 const STATUS_COLORS: Record<string, string> = {
-  OPEN: 'bg-red-50 text-red-700 border-red-200',
-  IN_PROGRESS: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-  CLOSED: 'bg-green-50 text-green-700 border-green-200',
+  OPEN: 'bg-danger/10 text-danger border-danger/20',
+  IN_PROGRESS: 'bg-warning/15 text-warning-foreground border-warning/30',
+  CLOSED: 'bg-success/10 text-success border-success/20',
 };
 
 export default function StatsOverview({ statusGroups, deptGroups, avgResolutionHours }: Props) {
@@ -30,7 +30,7 @@ export default function StatsOverview({ statusGroups, deptGroups, avgResolutionH
             <p className="text-3xl font-bold mt-1">{g._count.id}</p>
           </div>
         ))}
-        <div className="rounded-lg border bg-blue-50 text-blue-700 border-blue-200 p-4">
+        <div className="rounded-lg border bg-info/10 text-info border-info/20 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide opacity-70">Avg Resolution</p>
           <p className="text-3xl font-bold mt-1">{avgResolutionHours}h</p>
         </div>
@@ -38,14 +38,14 @@ export default function StatsOverview({ statusGroups, deptGroups, avgResolutionH
 
       {deptGroups.length > 0 && (
         <div className="bg-white rounded-lg border border-gray-100 p-4">
-          <p className="text-sm font-semibold text-gray-600 mb-3">Issues by Department</p>
+          <p className="text-sm font-semibold text-gray-600 mb-3">Issues by Division</p>
           <div className="space-y-2">
             {deptGroups.map((g) => (
-              <div key={g.department ?? 'none'} className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 w-36 truncate">{g.department ?? 'Unspecified'}</span>
+              <div key={g.division ?? 'none'} className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 w-36 truncate">{g.division ?? 'Unspecified'}</span>
                 <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-2 bg-[#00A651] rounded-full"
+                    className="h-2 bg-primary rounded-full"
                     style={{ width: `${Math.min(100, (g._count.id / Math.max(...deptGroups.map(d => d._count.id))) * 100)}%` }}
                   />
                 </div>

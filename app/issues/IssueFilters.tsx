@@ -21,28 +21,26 @@ const priorities = [
   { label: 'Low',            value: 'LOW' },
 ];
 
-const departments = [
-  { label: 'All Departments',  value: '' },
-  { label: 'Network',          value: 'Network' },
-  { label: 'IT',               value: 'IT' },
-  { label: 'Customer Service', value: 'Customer Service' },
-  { label: 'Finance',          value: 'Finance' },
-  { label: 'HR',               value: 'HR' },
-];
+interface Division {
+  id: string;
+  name: string;
+}
 
 interface Props {
+  divisions?:         Division[];
   currentStatus?:     string;
   currentPriority?:   string;
-  currentDepartment?: string;
+  currentDivisionId?: string;
   currentOrderBy?:    string;
   currentDirection?:  string;
   currentSearch?:     string;
 }
 
 export default function IssueFilters({
+  divisions         = [],
   currentStatus     = '',
   currentPriority   = '',
-  currentDepartment = '',
+  currentDivisionId = '',
   currentSearch     = '',
 }: Props) {
   const router       = useRouter();
@@ -116,15 +114,16 @@ export default function IssueFilters({
         ))}
       </Select>
 
-      {/* Department */}
+      {/* Division */}
       <Select
-        id="issue-department"
-        value={currentDepartment}
-        onChange={(e) => update('department', e.target.value)}
+        id="issue-division"
+        value={currentDivisionId}
+        onChange={(e) => update('divisionId', e.target.value)}
         className="w-40"
       >
-        {departments.map((d) => (
-          <option key={d.value} value={d.value}>{d.label}</option>
+        <option value="">All Divisions</option>
+        {divisions.map((d) => (
+          <option key={d.id} value={d.id}>{d.name}</option>
         ))}
       </Select>
     </div>

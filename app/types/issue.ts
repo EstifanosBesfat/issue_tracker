@@ -8,7 +8,7 @@ export interface IssueListItem {
   title: string;
   status: IssueStatus;
   priority: IssuePriority;
-  department: string | null;
+  division: { id: string; name: string } | null;
   dueDate: string | null;      // ISO string from JSON (Date serialised)
   assignee: { name: string } | null;
   createdAt: string;           // ISO string from JSON

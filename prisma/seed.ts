@@ -49,18 +49,31 @@ async function main() {
 
   console.log('Created demo users.');
 
-  // 2. Create Issues
+  // 2. Create Divisions (issues are raised against one of these)
+  const divisionNames = ['Network', 'IT', 'Customer Service', 'Finance', 'HR', 'General'];
+  const divisions = await Promise.all(
+    divisionNames.map((name) =>
+      prisma.division.upsert({
+        where: { name },
+        update: {},
+        create: { name },
+      })
+    )
+  );
+
+  console.log('Created demo divisions.');
+
+  // 3. Create Issues
   const statuses = ['OPEN', 'IN_PROGRESS', 'CLOSED'] as const;
   const priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
   const categories = ['MOBILE_NETWORK', 'FIBER_BROADBAND', 'TELEBIRR_BILLING', 'CORE_INFRASTRUCTURE', 'OTHER'] as const;
-  const departments = ['Network', 'IT', 'Customer Service', 'Finance', 'HR'];
   const userIds = [admin.id, staff1.id, staff2.id];
 
   const issuesData = Array.from({ length: 50 }).map((_, i) => {
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     const priority = priorities[Math.floor(Math.random() * priorities.length)];
     const category = categories[Math.floor(Math.random() * categories.length)];
-    const department = departments[Math.floor(Math.random() * departments.length)];
+    const division = divisions[Math.floor(Math.random() * divisions.length)];
     const reporterId = userIds[Math.floor(Math.random() * userIds.length)];
     // Randomly assign or leave unassigned
     const assigneeId = Math.random() > 0.3 ? userIds[Math.floor(Math.random() * userIds.length)] : undefined;
@@ -72,11 +85,11 @@ async function main() {
 
     return {
       title: `Auto-generated Incident Ticket #${i + 1} - ${category.replace('_', ' ')}`,
-      description: `This is an auto-generated issue for testing pagination and performance. It relates to ${department} department and is categorized as ${category}.`,
+      description: `This is an auto-generated issue for testing pagination and performance. It relates to the ${division.name} division and is categorized as ${category}.`,
       status,
       priority,
       category,
-      department,
+      divisionId: division.id,
       reporterId,
       assigneeId,
       dueDate,

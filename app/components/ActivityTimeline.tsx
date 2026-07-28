@@ -18,6 +18,7 @@ const ACTION_LABELS: Record<string, string> = {
   STATUS_CHANGED:   'changed status',
   ASSIGNEE_CHANGED: 'changed assignee',
   PRIORITY_CHANGED: 'changed priority',
+  DIVISION_CHANGED: 'changed division',
   COMMENT_ADDED:    'added a comment',
   COMMENT_DELETED:  'deleted a comment',
 };
@@ -66,6 +67,9 @@ export default function ActivityTimeline({ activityLogs }: Props) {
                     {' → '}
                     <span className="font-medium text-gray-600">{log.newValue}</span>
                   </span>
+                )}
+                {!log.oldValue && log.newValue && (
+                  <span className="text-xs font-medium text-gray-500">— {log.newValue}</span>
                 )}
               </div>
               <time className="text-xs text-gray-400">{formatTimestamp(log.createdAt)}</time>

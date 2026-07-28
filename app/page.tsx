@@ -50,27 +50,27 @@ export default async function Home() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-        <Card className="border-red-100 dark:border-red-900/20 shadow-sm flex flex-col justify-between">
+        <Card className="border-danger/20 shadow-sm flex flex-col justify-between">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-red-600 dark:text-red-500 uppercase">Open Issues</CardTitle>
+            <CardTitle className="text-sm font-medium text-danger uppercase">Open Issues</CardTitle>
           </CardHeader>
           <CardContent>
             <span className="text-4xl font-bold">{openCount}</span>
           </CardContent>
         </Card>
         
-        <Card className="border-yellow-100 dark:border-yellow-900/20 shadow-sm flex flex-col justify-between">
+        <Card className="border-warning/30 shadow-sm flex flex-col justify-between">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-yellow-600 dark:text-yellow-500 uppercase">In Progress</CardTitle>
+            <CardTitle className="text-sm font-medium text-warning-foreground uppercase">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
             <span className="text-4xl font-bold">{inProgressCount}</span>
           </CardContent>
         </Card>
 
-        <Card className="border-green-100 dark:border-green-900/20 shadow-sm flex flex-col justify-between">
+        <Card className="border-success/20 shadow-sm flex flex-col justify-between">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-green-600 dark:text-green-500 uppercase">Closed</CardTitle>
+            <CardTitle className="text-sm font-medium text-success uppercase">Closed</CardTitle>
           </CardHeader>
           <CardContent>
             <span className="text-4xl font-bold">{closedCount}</span>
@@ -91,10 +91,10 @@ export default async function Home() {
               const percent = activeIssuesTotal > 0 ? (count / activeIssuesTotal) * 100 : 0;
               
               const priorityColorClass = 
-                prio === 'CRITICAL' ? '[&_[data-slot=progress-indicator]]:bg-red-600 dark:[&_[data-slot=progress-indicator]]:bg-red-500' : 
-                prio === 'HIGH' ? '[&_[data-slot=progress-indicator]]:bg-orange-500 dark:[&_[data-slot=progress-indicator]]:bg-orange-400' : 
-                prio === 'MEDIUM' ? '[&_[data-slot=progress-indicator]]:bg-yellow-500 dark:[&_[data-slot=progress-indicator]]:bg-yellow-400' : 
-                '[&_[data-slot=progress-indicator]]:bg-blue-500 dark:[&_[data-slot=progress-indicator]]:bg-blue-400';
+                prio === 'CRITICAL' ? '[&_[data-slot=progress-indicator]]:bg-danger' : 
+                prio === 'HIGH' ? '[&_[data-slot=progress-indicator]]:bg-secondary' : 
+                prio === 'MEDIUM' ? '[&_[data-slot=progress-indicator]]:bg-warning' : 
+                '[&_[data-slot=progress-indicator]]:bg-info';
 
               return (
                 <div key={prio} className="flex items-center justify-between gap-4">

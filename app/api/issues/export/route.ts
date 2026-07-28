@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
   const rawStatus = first(searchParams.get('status') ?? undefined);
   const rawPriority = first(searchParams.get('priority') ?? undefined);
-  const rawDepartment = first(searchParams.get('department') ?? undefined);
+  const rawDivisionId = first(searchParams.get('divisionId') ?? undefined);
   const rawSearch = first(searchParams.get('q') ?? undefined);
 
   const status = (VALID_STATUSES as readonly string[]).includes(rawStatus)
@@ -36,13 +36,13 @@ export async function GET(request: NextRequest) {
   const priority = (VALID_PRIORITIES as readonly string[]).includes(rawPriority)
     ? (rawPriority as (typeof VALID_PRIORITIES)[number])
     : undefined;
-  const department = rawDepartment || undefined;
+  const divisionId = rawDivisionId || undefined;
   const search = rawSearch || undefined;
 
   const where = {
     ...(status ? { status } : {}),
     ...(priority ? { priority } : {}),
-    ...(department ? { department } : {}),
+    ...(divisionId ? { divisionId } : {}),
     ...(search ? { title: { contains: search, mode: 'insensitive' as const } } : {}),
   };
 
@@ -52,6 +52,7 @@ export async function GET(request: NextRequest) {
     include: {
       assignee: { select: { name: true } },
       reporter: { select: { name: true } },
+      division: { select: { name: true } },
     },
   });
 
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
     'Title',
     'Status',
     'Priority',
-    'Department',
+    'Division',
     'Category',
     'Due Date',
     'Assignee',
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
       escapeCSV(issue.title),
       escapeCSV(issue.status),
       escapeCSV(issue.priority),
-      escapeCSV(issue.department),
+      escapeCSV(issue.division?.name),
       escapeCSV(issue.category),
       escapeCSV(issue.dueDate?.toISOString().split('T')[0] ?? ''),
       escapeCSV(issue.assignee?.name),

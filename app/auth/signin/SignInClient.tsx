@@ -69,7 +69,7 @@ export default function SignInClient() {
         {isAccessDenied && (
           <div
             role="alert"
-            className="w-full flex items-start gap-3 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
+            className="w-full flex items-start gap-3 rounded-lg bg-danger/10 border border-danger/20 px-4 py-3 text-sm text-danger"
           >
             <span>Your account has been deactivated. Please contact an administrator.</span>
           </div>
@@ -78,7 +78,7 @@ export default function SignInClient() {
         {(formError || (error && !isAccessDenied)) && (
           <div
             role="alert"
-            className="w-full flex items-start gap-3 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
+            className="w-full flex items-start gap-3 rounded-lg bg-danger/10 border border-danger/20 px-4 py-3 text-sm text-danger"
           >
             <span>{formError ?? 'Sign-in failed. Please try again.'}</span>
           </div>
@@ -97,7 +97,7 @@ export default function SignInClient() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00A651]/40 focus:border-[#00A651]"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary"
               placeholder="you@ethiotelecom.et"
             />
           </div>
@@ -109,7 +109,7 @@ export default function SignInClient() {
               </label>
               <Link
                 href="/auth/forgot-password"
-                className="text-xs font-medium text-[#00A651] hover:underline"
+                className="text-xs font-medium text-secondary hover:underline"
               >
                 Forgot password?
               </Link>
@@ -121,7 +121,7 @@ export default function SignInClient() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00A651]/40 focus:border-[#00A651]"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-secondary/40 focus:border-secondary"
               placeholder="••••••••"
             />
           </div>
@@ -129,8 +129,8 @@ export default function SignInClient() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#00A651] disabled:opacity-60"
-            style={{ backgroundColor: '#00A651' }}
+            className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary disabled:opacity-60"
+            style={{ backgroundColor: 'var(--primary)' }}
           >
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
@@ -138,7 +138,7 @@ export default function SignInClient() {
 
         <p className="text-sm text-gray-500">
           Don&apos;t have an account?{' '}
-          <Link href="/auth/register" className="font-semibold text-[#00A651] hover:underline">
+          <Link href="/auth/register" className="font-semibold text-secondary hover:underline">
             Register
           </Link>
         </p>

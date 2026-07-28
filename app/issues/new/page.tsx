@@ -5,11 +5,18 @@ import NewIssueForm from './NewIssueForm';
 export const dynamic = 'force-dynamic';
 
 export default async function NewIssuePage() {
-  const users = await prisma.user.findMany({
-    where: { isActive: true },
-    select: { id: true, name: true },
-    orderBy: { name: 'asc' },
-  });
+  const [users, divisions] = await Promise.all([
+    prisma.user.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.division.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    }),
+  ]);
 
-  return <NewIssueForm users={users} />;
+  return <NewIssueForm users={users} divisions={divisions} />;
 }

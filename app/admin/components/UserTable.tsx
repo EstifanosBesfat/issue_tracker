@@ -54,14 +54,14 @@ export default function UserTable({ users, currentUserId }: Props) {
                   value={user.role}
                   disabled={user.id === currentUserId || !!loading}
                   onChange={(e) => patch(user.id, { role: e.target.value })}
-                  className="text-xs rounded border border-gray-300 px-2 py-1 focus:ring-1 focus:ring-[#00A651] disabled:opacity-50"
+                  className="text-xs rounded border border-gray-300 px-2 py-1 focus:ring-1 focus:ring-primary disabled:opacity-50"
                 >
                   <option value="USER">USER</option>
                   <option value="ADMIN">ADMIN</option>
                 </select>
               </td>
               <td className="px-4 py-3">
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${user.isActive ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'}`}>
                   {user.isActive ? 'Active' : 'Inactive'}
                 </span>
               </td>
@@ -73,7 +73,7 @@ export default function UserTable({ users, currentUserId }: Props) {
                   <button
                     onClick={() => patch(user.id, { isActive: !user.isActive })}
                     disabled={!!loading}
-                    className={`text-xs px-3 py-1 rounded font-semibold transition ${user.isActive ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200'} disabled:opacity-50`}
+                    className={`text-xs px-3 py-1 rounded font-semibold transition ${user.isActive ? 'bg-danger/10 text-danger hover:bg-danger/20' : 'bg-success/10 text-success hover:bg-success/20'} disabled:opacity-50`}
                   >
                     {loading === user.id ? '...' : user.isActive ? 'Deactivate' : 'Activate'}
                   </button>

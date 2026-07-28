@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -17,55 +17,81 @@ interface User {
   name: string | null;
 }
 
-interface Props {
-  users: User[];
+interface Division {
+  id: string;
+  name: string;
 }
 
-export default function NewIssueForm({ users }: Props) {
+interface Props {
+  users: User[];
+  divisions: Division[];
+}
+
+interface WorkloadEntry {
+  id: string;
+  name: string | null;
+  email: string;
+  openTickets: number;
+  openTicketsInCategory: number;
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  MOBILE_NETWORK: 'Mobile Network',
+  FIBER_BROADBAND: 'Fiber Broadband',
+  TELEBIRR_BILLING: 'Telebirr & Billing',
+  CORE_INFRASTRUCTURE: 'Core Infrastructure',
+  OTHER: 'Other',
+};
+
+export default function NewIssueForm({ users, divisions }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isTriaging, setIsTriaging] = useState(false);
-  const [triageReasoning, setTriageReasoning] = useState('');
+  const [recommended, setRecommended] = useState<WorkloadEntry | null>(null);
+  const [loadingWorkload, setLoadingWorkload] = useState(false);
 
   const {
     register,
     handleSubmit,
     setValue,
-    getValues,
+    watch,
     formState: { errors },
   } = useForm<IssueFormData>({
     resolver: zodResolver(createIssueSchema),
     defaultValues: { priority: 'MEDIUM', category: 'OTHER' },
   });
 
-  const runAiTriage = async () => {
-    const description = getValues('description');
-    if (!description || description.trim().length < 10) {
-      setError('Please enter a description (at least 10 characters) before using AI auto-fill.');
-      return;
-    }
-    setError('');
-    setTriageReasoning('');
-    setIsTriaging(true);
+  const selectedCategory = watch('category');
+  const selectedAssigneeId = watch('assigneeId');
+
+  // Technician workload balancing — whenever the category changes, ask the
+  // server who currently has the fewest open tickets in that category.
+  const fetchRecommendation = useCallback(async (category: string | undefined) => {
+    setLoadingWorkload(true);
     try {
-      const res = await axios.post('/api/ai-triage', { description });
-      const { priority, category, title, reasoning, error: apiError } = res.data;
-      if (apiError) {
-        setError(`AI Error: ${apiError}`);
-        return;
-      }
-      setValue('priority', priority, { shouldDirty: true });
-      setValue('category', category, { shouldDirty: true });
-      if (title) setValue('title', title, { shouldDirty: true });
-      setTriageReasoning(reasoning);
-    } catch (err: unknown) {
-      const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(message ? `AI Error: ${message}` : 'AI triage failed — check server logs.');
+      const url = category
+        ? `/api/technicians/workload?category=${encodeURIComponent(category)}`
+        : '/api/technicians/workload';
+      const res = await axios.get(url);
+      setRecommended(res.data.recommended ?? null);
+    } catch {
+      setRecommended(null);
     } finally {
-      setIsTriaging(false);
+      setLoadingWorkload(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRecommendation(selectedCategory);
+    // Re-run only when the category changes, not on every keystroke elsewhere.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory]);
+
+  const applyRecommendation = () => {
+    if (recommended) {
+      setValue('assigneeId', recommended.id, { shouldDirty: true });
     }
   };
 
@@ -97,7 +123,11 @@ export default function NewIssueForm({ users }: Props) {
   };
 
   const cls =
-    'mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 text-gray-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00A651]/30 focus:border-[#00A651] transition-all';
+    'mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 text-gray-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all';
+
+  const categoryLabel = CATEGORY_LABELS[selectedCategory ?? ''] ?? 'this category';
+  const showRecommendation =
+    recommended && (!selectedAssigneeId || selectedAssigneeId === '') && !loadingWorkload;
 
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
@@ -105,7 +135,7 @@ export default function NewIssueForm({ users }: Props) {
       <p className="text-sm text-gray-500 mb-6">File a new issue or service request.</p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>
+        <div className="mb-4 p-3 bg-danger/10 text-danger rounded-md text-sm">{error}</div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -113,41 +143,20 @@ export default function NewIssueForm({ users }: Props) {
           <label className="block text-sm font-semibold text-gray-700">Title</label>
           <input type="text" {...register('title')} className={cls} placeholder="Issue title" />
           {errors.title && (
-            <p className="mt-1 text-xs text-red-600">{errors.title.message}</p>
+            <p className="mt-1 text-xs text-danger">{errors.title.message}</p>
           )}
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-semibold text-gray-700">Description</label>
-            <button
-              type="button"
-              onClick={runAiTriage}
-              disabled={isTriaging}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold rounded-md bg-violet-50 border border-violet-200 text-violet-700 hover:bg-violet-100 disabled:opacity-60 px-2.5 py-1 transition-colors"
-              title="AI will read your description and auto-set Priority & Category"
-            >
-              {isTriaging ? (
-                <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-              ) : (
-                <span>✨</span>
-              )}
-              {isTriaging ? 'Analyzing...' : 'AI Auto-Fill'}
-            </button>
-          </div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
           <textarea
             {...register('description')}
             rows={4}
             className={cls}
-            placeholder="Describe the problem in detail. The AI will read this to suggest priority and category."
+            placeholder="Describe the problem in detail."
           />
-          {triageReasoning && (
-            <p className="mt-1.5 text-xs text-violet-700 bg-violet-50 border border-violet-100 rounded-md px-3 py-2">
-              🤖 <strong>AI reasoning:</strong> {triageReasoning}
-            </p>
-          )}
           {errors.description && (
-            <p className="mt-1 text-xs text-red-600">{errors.description.message}</p>
+            <p className="mt-1 text-xs text-danger">{errors.description.message}</p>
           )}
         </div>
 
@@ -175,14 +184,12 @@ export default function NewIssueForm({ users }: Props) {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700">Department</label>
-            <select {...register('department')} className={cls}>
+            <label className="block text-sm font-semibold text-gray-700">Division</label>
+            <select {...register('divisionId')} className={cls}>
               <option value="">— Select —</option>
-              <option value="Network">Network</option>
-              <option value="IT">IT</option>
-              <option value="Customer Service">Customer Service</option>
-              <option value="Finance">Finance</option>
-              <option value="HR">HR</option>
+              {divisions.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
             </select>
           </div>
           <div>
@@ -195,6 +202,25 @@ export default function NewIssueForm({ users }: Props) {
                 </option>
               ))}
             </select>
+            {showRecommendation && (
+              <div className="mt-1.5 flex items-start gap-2 text-xs bg-info/10 border border-info/20 rounded-md px-3 py-2">
+                <span className="text-info">💡</span>
+                <div className="flex-1">
+                  <p className="text-info">
+                    <strong>{recommended!.name ?? recommended!.email}</strong> has the lightest load in{' '}
+                    {categoryLabel} — {recommended!.openTicketsInCategory} open in this category
+                    ({recommended!.openTickets} total).
+                  </p>
+                  <button
+                    type="button"
+                    onClick={applyRecommendation}
+                    className="mt-1 font-semibold text-info hover:underline"
+                  >
+                    Assign to {recommended!.name ?? 'them'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -202,7 +228,7 @@ export default function NewIssueForm({ users }: Props) {
           <label className="block text-sm font-semibold text-gray-700">Due Date <span className="text-gray-400 font-normal">(optional)</span></label>
           <input type="date" {...register('dueDate')} className={cls} />
           {errors.dueDate && (
-            <p className="mt-1 text-xs text-red-600">{errors.dueDate.message}</p>
+            <p className="mt-1 text-xs text-danger">{errors.dueDate.message}</p>
           )}
         </div>
 
@@ -214,7 +240,7 @@ export default function NewIssueForm({ users }: Props) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-md bg-[#00A651] py-2.5 px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#007a3d] disabled:opacity-50 transition"
+          className="w-full rounded-md bg-primary py-2.5 px-4 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-50 transition"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Ticket'}
         </button>

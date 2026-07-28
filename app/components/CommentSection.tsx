@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
 import Avatar from './Avatar';
 import { renderMentionContent } from '@/lib/mentions';
 
@@ -48,7 +47,7 @@ function CommentBody({ content }: { content: string }) {
     <p className="text-sm text-gray-700 whitespace-pre-wrap">
       {parts.map((part, index) =>
         part.type === 'mention' ? (
-          <span key={index} className="font-semibold text-[#00A651]">
+          <span key={index} className="font-semibold text-secondary">
             {part.value}
           </span>
         ) : (
@@ -60,7 +59,6 @@ function CommentBody({ content }: { content: string }) {
 }
 
 export default function CommentSection({ issueId, initialComments, currentUserId, userRole }: Props) {
-  const t = useTranslations('comments');
   const [comments, setComments] = useState<Comment[]>(
     [...initialComments].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
   );
@@ -110,7 +108,7 @@ export default function CommentSection({ issueId, initialComments, currentUserId
 
   const handleSubmit = async () => {
     if (!content.trim()) {
-      setError(t('emptyError'));
+      setError('Comment cannot be empty');
       return;
     }
     setError('');
@@ -150,12 +148,12 @@ export default function CommentSection({ issueId, initialComments, currentUserId
   return (
     <div className="mt-8">
       <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4">
-        {t('title', { count: comments.length })}
+        Comments ({comments.length})
       </h3>
 
       <div className="space-y-4 mb-6">
         {comments.length === 0 && (
-          <p className="text-sm text-gray-400">{t('empty')}</p>
+          <p className="text-sm text-gray-400">No comments yet</p>
         )}
         {comments.map((c) => (
           <div key={c.id} className="flex gap-3">
@@ -168,9 +166,9 @@ export default function CommentSection({ issueId, initialComments, currentUserId
                   {canDelete(c) && (
                     <button
                       onClick={() => handleDelete(c.id)}
-                      className="text-xs text-red-500 hover:text-red-700 transition"
+                      className="text-xs text-danger/80 hover:text-danger transition"
                     >
-                      {t('delete')}
+                      Delete
                     </button>
                   )}
                 </div>
@@ -187,10 +185,10 @@ export default function CommentSection({ issueId, initialComments, currentUserId
             value={content}
             onChange={(e) => handleContentChange(e.target.value)}
             rows={3}
-            placeholder={t('placeholder')}
-            className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00A651]/30 focus:border-[#00A651] transition-all"
+            placeholder="Add a comment... Type @ to mention someone"
+            className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all"
           />
-          <p className="text-xs text-gray-400">{t('mentionHint')}</p>
+          <p className="text-xs text-gray-400">Tip: type @ followed by a name to mention and notify someone</p>
 
           {mentionUsers.length > 0 && (
             <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-md border border-gray-200 bg-white shadow-lg overflow-hidden">
@@ -199,7 +197,7 @@ export default function CommentSection({ issueId, initialComments, currentUserId
                   key={user.id}
                   type="button"
                   onClick={() => insertMention(user)}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-green-50"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-primary/10"
                 >
                   <span className="font-medium text-gray-800">{user.name ?? user.email}</span>
                   <span className="text-xs text-gray-400">{user.email}</span>
@@ -208,19 +206,19 @@ export default function CommentSection({ issueId, initialComments, currentUserId
             </div>
           )}
 
-          {error && <p className="text-xs text-red-600">{error}</p>}
+          {error && <p className="text-xs text-danger">{error}</p>}
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="rounded-md bg-[#00A651] px-4 py-2 text-sm font-semibold text-white hover:bg-[#007a3d] disabled:opacity-50 transition"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition"
           >
-            {submitting ? t('posting') : t('post')}
+            {submitting ? 'Posting...' : 'Post Comment'}
           </button>
         </div>
       ) : (
         <p className="text-sm text-gray-500">
-          <a href="/auth/signin" className="text-[#00A651] hover:underline font-semibold">
-            {t('signInToComment')}
+          <a href="/auth/signin" className="text-secondary hover:underline font-semibold">
+            Sign in to comment
           </a>
         </p>
       )}

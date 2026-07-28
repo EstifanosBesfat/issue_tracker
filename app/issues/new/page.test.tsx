@@ -17,12 +17,16 @@ describe('NewIssueForm', () => {
       { id: '1', name: 'Alice' },
       { id: '2', name: 'Bob' },
     ];
+    const fakeDivisions = [
+      { id: 'div_network', name: 'Network' },
+      { id: 'div_it', name: 'IT' },
+    ];
     
     const queryClient = new QueryClient();
     
     render(
       <QueryClientProvider client={queryClient}>
-        <NewIssueForm users={fakeUsers} />
+        <NewIssueForm users={fakeUsers} divisions={fakeDivisions} />
       </QueryClientProvider>
     );
     

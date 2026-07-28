@@ -8,7 +8,7 @@ interface Issue {
   title: string;
   status: string;
   priority: string;
-  department: string | null;
+  division: { name: string } | null;
   createdAt: Date;
   assignee: { name: string | null } | null;
   reporter: { name: string | null } | null;
@@ -19,16 +19,16 @@ interface Props {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  OPEN: "bg-red-50 text-red-700",
-  IN_PROGRESS: "bg-yellow-50 text-yellow-700",
-  CLOSED: "bg-green-50 text-green-700",
+  OPEN: "bg-danger/10 text-danger",
+  IN_PROGRESS: "bg-warning/15 text-warning-foreground",
+  CLOSED: "bg-success/10 text-success",
 };
 
 const PRIORITY_COLORS: Record<string, string> = {
-  CRITICAL: "bg-red-600 text-white",
-  HIGH: "bg-orange-100 text-orange-700",
-  MEDIUM: "bg-yellow-100 text-yellow-700",
-  LOW: "bg-blue-100 text-blue-700",
+  CRITICAL: "bg-danger text-danger-foreground",
+  HIGH: "bg-secondary text-secondary-foreground",
+  MEDIUM: "bg-warning/15 text-warning-foreground",
+  LOW: "bg-info/10 text-info",
 };
 
 export default function IssueTable({ issues }: Props) {
@@ -91,8 +91,8 @@ export default function IssueTable({ issues }: Props) {
     <>
       {/* Bulk actions */}
       {selected.size > 0 && (
-        <div className="flex items-center gap-3 mb-4 p-3 bg-[#00A651]/10 rounded-lg border border-[#00A651]/30">
-          <span className="text-sm font-semibold text-[#00A651]">
+        <div className="flex items-center gap-3 mb-4 p-3 bg-primary/10 rounded-lg border border-primary/30">
+          <span className="text-sm font-semibold text-primary">
             {selected.size} selected
           </span>
           <select
@@ -107,7 +107,7 @@ export default function IssueTable({ issues }: Props) {
           <button
             onClick={applyBulkStatus}
             disabled={loading}
-            className="text-sm px-3 py-1 bg-[#00A651] text-white rounded font-semibold hover:bg-[#007a3d] disabled:opacity-50 transition"
+            className="text-sm px-3 py-1 bg-primary text-primary-foreground rounded font-semibold hover:opacity-90 disabled:opacity-50 transition"
           >
             {loading ? "Applying..." : "Apply Status"}
           </button>
@@ -130,7 +130,7 @@ export default function IssueTable({ issues }: Props) {
                 "Title",
                 "Status",
                 "Priority",
-                "Department",
+                "Division",
                 "Reporter",
                 "Assignee",
                 "Created",
@@ -159,7 +159,7 @@ export default function IssueTable({ issues }: Props) {
                 <td className="px-3 py-3 max-w-xs">
                   <Link
                     href={`/issues/${issue.id}`}
-                    className="font-medium text-gray-900 hover:text-[#00A651] hover:underline truncate block"
+                    className="font-medium text-gray-900 hover:text-secondary hover:underline truncate block"
                   >
                     {issue.title}
                   </Link>
@@ -179,7 +179,7 @@ export default function IssueTable({ issues }: Props) {
                   </span>
                 </td>
                 <td className="px-3 py-3 text-gray-500">
-                  {issue.department ?? "—"}
+                  {issue.division?.name ?? "—"}
                 </td>
                 <td className="px-3 py-3 text-gray-500">
                   {issue.reporter?.name ?? "—"}
@@ -197,7 +197,7 @@ export default function IssueTable({ issues }: Props) {
                 <td className="px-3 py-3">
                   <button
                     onClick={() => setDeleteId(issue.id)}
-                    className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition font-semibold"
+                    className="text-xs px-2 py-1 bg-danger/10 text-danger rounded hover:bg-danger/20 transition font-semibold"
                   >
                     Delete
                   </button>
@@ -229,7 +229,7 @@ export default function IssueTable({ issues }: Props) {
               <button
                 onClick={confirmDelete}
                 disabled={deleting}
-                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-500 disabled:opacity-50 transition"
+                className="px-4 py-2 text-sm font-semibold text-danger-foreground bg-danger rounded-md hover:opacity-90 disabled:opacity-50 transition"
               >
                 {deleting ? "Deleting..." : "Delete"}
               </button>

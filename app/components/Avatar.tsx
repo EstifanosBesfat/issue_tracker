@@ -34,11 +34,10 @@ export default function Avatar({ image, name, size = 32 }: AvatarProps) {
 
   return (
     <div
-      className="flex items-center justify-center rounded-full text-white font-semibold select-none"
+      className="flex items-center justify-center rounded-full text-primary-foreground font-semibold select-none bg-primary"
       style={{
         width: size,
         height: size,
-        backgroundColor: '#00A651',
         fontSize: Math.max(10, size * 0.35),
         flexShrink: 0,
       }}

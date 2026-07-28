@@ -5,7 +5,8 @@ export const createIssueSchema = z.object({
   description: z.string().min(1, 'Description is required.'),
   priority:    z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   category:    z.enum(['MOBILE_NETWORK', 'FIBER_BROADBAND', 'TELEBIRR_BILLING', 'CORE_INFRASTRUCTURE', 'OTHER']).optional(),
-  department:  z.string().optional(),
+  // References Division.id — issues are raised against a managed division
+  divisionId:  z.string().optional().nullable(),
   // Accept any non-empty string for dueDate (the form gives YYYY-MM-DD, API converts to ISO)
   dueDate:     z.string().optional().nullable(),
   // Accept any string or null for assigneeId (empty string is coerced to null in the form)
@@ -28,6 +29,15 @@ export const commentSchema = z.object({
 
 export const patchUserSchema = z.object({
   role:     z.enum(['USER', 'ADMIN']).optional(),
+  isActive: z.boolean().optional(),
+});
+
+export const createDivisionSchema = z.object({
+  name: z.string().min(1, 'Name is required.').max(100),
+});
+
+export const patchDivisionSchema = z.object({
+  name:     z.string().min(1, 'Name is required.').max(100).optional(),
   isActive: z.boolean().optional(),
 });
 

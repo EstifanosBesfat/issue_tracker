@@ -29,9 +29,9 @@ import { useCallback } from "react";
 /* ------------------------------------------------------------------ */
 
 const statusVariant: Record<string, string> = {
-  OPEN:        "bg-red-50 text-red-700 border-red-200",
-  IN_PROGRESS: "bg-amber-50 text-amber-700 border-amber-200",
-  CLOSED:      "bg-emerald-50 text-emerald-700 border-emerald-200",
+  OPEN:        "bg-danger/10 text-danger border-danger/20",
+  IN_PROGRESS: "bg-warning/10 text-warning-foreground border-warning/30",
+  CLOSED:      "bg-success/10 text-success border-success/20",
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -66,7 +66,7 @@ const columns = [
         <div className="flex items-center gap-2 max-w-xs">
           <Link
             href={`/issues/${issue.id}`}
-            className="hover:text-[#00A651] hover:underline truncate block font-medium text-gray-900"
+            className="hover:text-secondary hover:underline truncate block font-medium text-gray-900"
           >
             {info.getValue()}
           </Link>
@@ -83,11 +83,11 @@ const columns = [
     header: "Priority",
     cell: (info) => <PriorityBadge priority={info.getValue()} />,
   }),
-  columnHelper.accessor("department", {
-    header: "Department",
+  columnHelper.accessor("division", {
+    header: "Division",
     enableSorting: false,
     cell: (info) => (
-      <span className="text-gray-500">{info.getValue() ?? "—"}</span>
+      <span className="text-gray-500">{info.getValue()?.name ?? "—"}</span>
     ),
   }),
   columnHelper.accessor("dueDate", {
@@ -198,9 +198,9 @@ export default function IssuesDataTable({
                 const isActive  = orderBy === colId;
 
                 const colClassName =
-                  colId === "department" ? "hidden md:table-cell" :
-                  colId === "dueDate"    ? "hidden md:table-cell" :
-                  colId === "assignee"   ? "hidden lg:table-cell" : "";
+                  colId === "division" ? "hidden md:table-cell" :
+                  colId === "dueDate"  ? "hidden md:table-cell" :
+                  colId === "assignee" ? "hidden lg:table-cell" : "";
 
                 return (
                   <TableHead key={header.id} className={colClassName}>
@@ -245,9 +245,9 @@ export default function IssuesDataTable({
                 {row.getVisibleCells().map((cell) => {
                   const colId = cell.column.id;
                   const colClassName =
-                    colId === "department" ? "hidden md:table-cell" :
-                    colId === "dueDate"    ? "hidden md:table-cell" :
-                    colId === "assignee"   ? "hidden lg:table-cell" : "";
+                    colId === "division" ? "hidden md:table-cell" :
+                    colId === "dueDate"  ? "hidden md:table-cell" :
+                    colId === "assignee" ? "hidden lg:table-cell" : "";
                   return (
                     <TableCell key={cell.id} className={colClassName}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

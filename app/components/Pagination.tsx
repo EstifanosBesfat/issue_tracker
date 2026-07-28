@@ -31,8 +31,8 @@ export default function Pagination({ currentPage, totalPages }: Props) {
   for (let p = start; p <= end; p++) pages.push(p);
 
   const btnBase   = 'inline-flex items-center justify-center rounded-md border text-sm font-medium h-8 px-3 transition-colors select-none';
-  const btnActive = `${btnBase} bg-[#00A651] text-white border-[#00A651]`;
-  const btnNormal = `${btnBase} bg-white text-zinc-700 border-zinc-300 hover:border-[#00A651] hover:text-[#00A651]`;
+  const btnActive = `${btnBase} bg-primary text-primary-foreground border-primary`;
+  const btnNormal = `${btnBase} bg-white text-zinc-700 border-zinc-300 hover:border-secondary hover:text-secondary`;
   const btnDisabled = `${btnBase} bg-white text-zinc-300 border-zinc-200 pointer-events-none cursor-default`;
 
   return (

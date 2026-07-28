@@ -66,7 +66,7 @@ model Issue {
   status      Status    @default(OPEN)
   priority    Priority  @default(MEDIUM)
   category    Category  @default(MOBILE_NETWORK)
-  department  String?
+  divisionId  String?
   dueDate     DateTime?
   reporterId  String?
   assigneeId  String?
@@ -75,10 +75,26 @@ model Issue {
 
   reporter     User?          @relation("ReportedBy", fields: [reporterId], references: [id])
   assignee     User?          @relation("AssignedTo", fields: [assigneeId], references: [id])
+  division     Division?      @relation(fields: [divisionId], references: [id], onDelete: SetNull)
   images       IssueImage[]
   comments     Comment[]
   activityLogs ActivityLog[]
   notifications Notification[]
+
+  @@index([divisionId])
+}
+
+// ─── Project Divisions ─────────────────────────────────────────────────────────
+// Issues are raised against a managed Division (e.g. Network, IT) instead of a
+// free-text department string, so filtering/reporting stays consistent.
+model Division {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  issues Issue[]
 }
 
 model IssueImage {

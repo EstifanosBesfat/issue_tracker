@@ -83,7 +83,7 @@ export default function ImageUpload({ onUpload, existingCount = 0 }: Props) {
       )}
 
       {remaining > 0 && (
-        <label className="inline-flex items-center gap-2 cursor-pointer text-sm text-[#00A651] hover:underline">
+        <label className="inline-flex items-center gap-2 cursor-pointer text-sm text-secondary hover:underline">
           <input
             ref={inputRef}
             type="file"
@@ -97,7 +97,7 @@ export default function ImageUpload({ onUpload, existingCount = 0 }: Props) {
         </label>
       )}
 
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
 }

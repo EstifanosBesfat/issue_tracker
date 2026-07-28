@@ -19,10 +19,10 @@ const QUICK_ACTIONS = [
 ];
 
 const PRIORITY_COLORS: Record<string, string> = {
-  CRITICAL: "text-red-600 bg-red-50",
-  HIGH: "text-orange-600 bg-orange-50",
-  MEDIUM: "text-yellow-600 bg-yellow-50",
-  LOW: "text-blue-600 bg-blue-50",
+  CRITICAL: "text-danger bg-danger/10",
+  HIGH: "text-secondary bg-secondary/10",
+  MEDIUM: "text-warning-foreground bg-warning/15",
+  LOW: "text-info bg-info/10",
 };
 
 const STATUS_LABELS: Record<string, string> = {

@@ -15,9 +15,14 @@ export default async function EditIssuePage({ params }: Props) {
 
   if (!session?.user) redirect('/auth/signin');
 
-  const [issue, users] = await Promise.all([
+  const [issue, users, divisions] = await Promise.all([
     prisma.issue.findUnique({ where: { id } }),
     prisma.user.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.division.findMany({
       where: { isActive: true },
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
@@ -33,5 +38,5 @@ export default async function EditIssuePage({ params }: Props) {
 
   const isAdmin = session.user.role === 'ADMIN';
 
-  return <EditIssueForm issue={issue} isAdmin={isAdmin} users={users} />;
+  return <EditIssueForm issue={issue} isAdmin={isAdmin} users={users} divisions={divisions} />;
 }

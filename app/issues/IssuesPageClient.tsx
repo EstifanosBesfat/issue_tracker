@@ -8,27 +8,36 @@ import IssuesDataTable from "./IssuesDataTable";
 import Pagination from "@/app/components/Pagination";
 import ExportButton from "./ExportButton";
 
-export default function IssuesPageClient() {
+interface Division {
+  id: string;
+  name: string;
+}
+
+interface Props {
+  divisions: Division[];
+}
+
+export default function IssuesPageClient({ divisions }: Props) {
   const searchParams = useSearchParams();
 
   // Read current URL params
   const q          = searchParams.get("q")          ?? undefined;
   const status     = searchParams.get("status")     ?? undefined;
   const priority   = searchParams.get("priority")   ?? undefined;
-  const department = searchParams.get("department") ?? undefined;
+  const divisionId = searchParams.get("divisionId") ?? undefined;
   const orderBy    = searchParams.get("orderBy")    ?? "createdAt";
   const direction  = searchParams.get("direction")  ?? "desc";
   const page       = searchParams.get("page")       ?? "1";
 
   const { data, isLoading, isFetching } = useIssuesQuery({
-    q, status, priority, department, orderBy, direction, page,
+    q, status, priority, divisionId, orderBy, direction, page,
   });
 
   // Build export URL from current filters (no page param)
   const exportParams = new URLSearchParams();
   if (status)     exportParams.set("status",     status);
   if (priority)   exportParams.set("priority",   priority);
-  if (department) exportParams.set("department", department);
+  if (divisionId) exportParams.set("divisionId", divisionId);
   if (q)          exportParams.set("q",          q);
 
   return (
@@ -45,7 +54,7 @@ export default function IssuesPageClient() {
           <ExportButton exportUrl={`/api/issues/export?${exportParams.toString()}`} />
           <Link
             href="/issues/new"
-            className="rounded-md bg-[#00A651] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#007a3d] transition"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition"
           >
             + New Ticket
           </Link>
@@ -54,9 +63,10 @@ export default function IssuesPageClient() {
 
       {/* ---- Filters ---- */}
       <IssueFilters
+        divisions={divisions}
         currentStatus={status     ?? ""}
         currentPriority={priority  ?? ""}
-        currentDepartment={department ?? ""}
+        currentDivisionId={divisionId ?? ""}
         currentOrderBy={orderBy}
         currentDirection={direction}
         currentSearch={q ?? ""}

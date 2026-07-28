@@ -37,9 +37,9 @@ export default function DeleteButton({ issueId, canDelete = true }: Props) {
   return (
     <>
       {error && (
-        <div className="fixed top-4 right-4 z-50 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm shadow-md flex items-center gap-3">
+        <div className="fixed top-4 right-4 z-50 bg-danger/10 border border-danger/30 text-danger px-4 py-3 rounded-md text-sm shadow-md flex items-center gap-3">
           <span>{error}</span>
-          <button onClick={() => setError('')} className="text-red-500 hover:text-red-700 font-bold">✕</button>
+          <button onClick={() => setError('')} className="text-danger/80 hover:text-danger font-bold">✕</button>
         </div>
       )}
 
@@ -60,7 +60,7 @@ export default function DeleteButton({ issueId, canDelete = true }: Props) {
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-500 disabled:opacity-50 transition"
+                className="px-4 py-2 text-sm font-semibold text-danger-foreground bg-danger rounded-md hover:opacity-90 disabled:opacity-50 transition"
               >
                 {isDeleting ? 'Deleting…' : 'Delete'}
               </button>
@@ -71,7 +71,7 @@ export default function DeleteButton({ issueId, canDelete = true }: Props) {
 
       <button
         onClick={() => setShowConfirm(true)}
-        className="rounded-md bg-red-600 px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-red-500 disabled:bg-red-300 transition"
+        className="rounded-md bg-danger px-3.5 py-1.5 text-sm font-semibold text-danger-foreground hover:opacity-90 disabled:opacity-50 transition"
       >
         Delete
       </button>

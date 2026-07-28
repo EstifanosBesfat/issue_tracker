@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         status:      'OPEN',   // always starts open — only admins can change status
         priority:    issueData.priority   ?? 'MEDIUM',
         category:    issueData.category   ?? 'OTHER',
-        department:  issueData.department ?? null,
+        divisionId:  issueData.divisionId ?? null,
         dueDate:     issueData.dueDate    ? new Date(issueData.dueDate) : null,
         assigneeId:  issueData.assigneeId ?? null,
         reporterId:  session.user.id,

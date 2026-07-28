@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/prisma/client';
 import { patchIssueSchema } from '@/app/validationSchemas';
 import { auth } from '@/auth';
+import { createNotifications } from '@/lib/notifications';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -39,7 +40,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   if (data.status !== undefined && session.user.role === 'ADMIN') updateData.status = data.status;
   if (data.priority    !== undefined) updateData.priority    = data.priority;
   if (data.category    !== undefined) updateData.category    = data.category;
-  if (data.department  !== undefined) updateData.department  = data.department;
+  if (data.divisionId  !== undefined) updateData.divisionId  = data.divisionId;
   if (data.assigneeId  !== undefined) updateData.assigneeId  = data.assigneeId;
   if (data.dueDate     !== undefined) updateData.dueDate     = data.dueDate ? new Date(data.dueDate) : null;
 
@@ -53,6 +54,21 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   }
   if (data.priority !== undefined && data.priority !== issue.priority) {
     logs.push({ action: 'PRIORITY_CHANGED', oldValue: issue.priority, newValue: data.priority });
+  }
+  if (data.divisionId !== undefined && data.divisionId !== issue.divisionId) {
+    const [oldDivision, newDivision] = await Promise.all([
+      issue.divisionId
+        ? prisma.division.findUnique({ where: { id: issue.divisionId }, select: { name: true } })
+        : null,
+      data.divisionId
+        ? prisma.division.findUnique({ where: { id: data.divisionId }, select: { name: true } })
+        : null,
+    ]);
+    logs.push({
+      action: 'DIVISION_CHANGED',
+      oldValue: oldDivision?.name ?? null,
+      newValue: newDivision?.name ?? null,
+    });
   }
   if (data.assigneeId !== undefined && data.assigneeId !== issue.assigneeId) {
     // Resolve names for readability
@@ -81,7 +97,9 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     });
   }
 
-  // ── Notifications ────────────────────────────────────────────────────────────
+  // ── Notifications (pushed instantly via SSE, see lib/notifications.ts) ────────
+
+  const notifications: { userId: string; issueId: string; type: string; message: string }[] = [];
 
   // 1. New assignee notification — "An issue was assigned to you"
   if (
@@ -89,13 +107,11 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     data.assigneeId !== issue.assigneeId &&
     data.assigneeId
   ) {
-    await prisma.notification.create({
-      data: {
-        userId:  data.assigneeId,
-        issueId: id,
-        type:    'ASSIGNED',
-        message: `You have been assigned to issue: "${updatedIssue.title}"`,
-      },
+    notifications.push({
+      userId:  data.assigneeId,
+      issueId: id,
+      type:    'ASSIGNED',
+      message: `You have been assigned to issue: "${updatedIssue.title}"`,
     });
   }
 
@@ -106,15 +122,15 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     issue.reporterId &&
     issue.reporterId !== session.user.id
   ) {
-    await prisma.notification.create({
-      data: {
-        userId:  issue.reporterId,
-        issueId: id,
-        type:    'STATUS_CHANGED',
-        message: `Your issue "${updatedIssue.title}" status changed to ${data.status.replace('_', ' ')}.`,
-      },
+    notifications.push({
+      userId:  issue.reporterId,
+      issueId: id,
+      type:    'STATUS_CHANGED',
+      message: `Your issue "${updatedIssue.title}" status changed to ${data.status.replace('_', ' ')}.`,
     });
   }
+
+  await createNotifications(notifications);
 
   return NextResponse.json(updatedIssue);
 }
