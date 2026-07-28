@@ -123,14 +123,14 @@ export default function NewIssueForm({ users, divisions }: Props) {
   };
 
   const cls =
-    'mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 text-gray-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all';
+    'mt-1 block w-full rounded-md border border-gray-200 bg-white text-gray-900 px-3 py-2 text-sm shadow-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all';
 
   const categoryLabel = CATEGORY_LABELS[selectedCategory ?? ''] ?? 'this category';
   const showRecommendation =
     recommended && (!selectedAssigneeId || selectedAssigneeId === '') && !loadingWorkload;
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-sm border border-gray-100">
+    <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-none border border-gray-200">
       <h1 className="text-2xl font-bold mb-1 text-gray-900">New Incident Ticket</h1>
       <p className="text-sm text-gray-500 mb-6">File a new issue or service request.</p>
 
@@ -203,10 +203,10 @@ export default function NewIssueForm({ users, divisions }: Props) {
               ))}
             </select>
             {showRecommendation && (
-              <div className="mt-1.5 flex items-start gap-2 text-xs bg-info/10 border border-info/20 rounded-md px-3 py-2">
-                <span className="text-info">💡</span>
+              <div className="mt-1.5 flex items-start gap-2 text-xs bg-gray-50 border border-gray-200 rounded-md px-3 py-2">
+                <span className="text-primary">💡</span>
                 <div className="flex-1">
-                  <p className="text-info">
+                  <p className="text-gray-700">
                     <strong>{recommended!.name ?? recommended!.email}</strong> has the lightest load in{' '}
                     {categoryLabel} — {recommended!.openTicketsInCategory} open in this category
                     ({recommended!.openTickets} total).
@@ -214,7 +214,7 @@ export default function NewIssueForm({ users, divisions }: Props) {
                   <button
                     type="button"
                     onClick={applyRecommendation}
-                    className="mt-1 font-semibold text-info hover:underline"
+                    className="mt-1 font-semibold text-primary hover:underline"
                   >
                     Assign to {recommended!.name ?? 'them'}
                   </button>

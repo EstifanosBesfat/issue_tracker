@@ -1,18 +1,17 @@
 type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
-const priorityMap: Record<Priority, { label: string; className: string }> = {
-  LOW:      { label: 'Low',      className: 'bg-info/10 text-info ring-info/20'                         },
-  MEDIUM:   { label: 'Medium',   className: 'bg-warning/15 text-warning-foreground ring-warning/30'      },
-  HIGH:     { label: 'High',     className: 'bg-secondary text-secondary-foreground ring-secondary/10'   },
-  CRITICAL: { label: 'Critical', className: 'bg-danger text-danger-foreground ring-danger/10'             },
+const priorityMap: Record<Priority, { label: string; dotClass: string }> = {
+  LOW:      { label: 'Low',      dotClass: 'bg-info' },
+  MEDIUM:   { label: 'Medium',   dotClass: 'bg-warning' },
+  HIGH:     { label: 'High',     dotClass: 'bg-secondary' },
+  CRITICAL: { label: 'Critical', dotClass: 'bg-danger' },
 };
 
 export default function PriorityBadge({ priority }: { priority: Priority }) {
-  const { label, className } = priorityMap[priority];
+  const { label, dotClass } = priorityMap[priority];
   return (
-    <span
-      className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-bold ring-1 ring-inset ${className}`}
-    >
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-xs font-medium text-gray-700 shadow-sm">
+      <span className={`h-1.5 w-1.5 rounded-full ${dotClass}`} aria-hidden="true"></span>
       {label}
     </span>
   );

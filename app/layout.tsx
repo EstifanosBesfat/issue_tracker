@@ -1,11 +1,15 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { SessionProvider } from 'next-auth/react';
-import { Geist } from "next/font/google";
+import { Poppins } from "next/font/google";
 import Providers from './providers';
 import AppShell from './components/AppShell';
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
+const poppins = Poppins({ 
+  subsets: ['latin'], 
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-sans' 
+});
 
 export const metadata: Metadata = {
   title: 'EthioTelecom Issue Tracker',
@@ -18,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`font-sans ${geist.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`font-sans ${poppins.variable}`} suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground" suppressHydrationWarning>
         <SessionProvider>
           <Providers>

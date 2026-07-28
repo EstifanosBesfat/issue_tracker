@@ -29,16 +29,16 @@ import { useCallback } from "react";
 /* ------------------------------------------------------------------ */
 
 const statusVariant: Record<string, string> = {
-  OPEN:        "bg-danger/10 text-danger border-danger/20",
-  IN_PROGRESS: "bg-warning/10 text-warning-foreground border-warning/30",
-  CLOSED:      "bg-success/10 text-success border-success/20",
+  OPEN:        "bg-primary",
+  IN_PROGRESS: "bg-warning",
+  CLOSED:      "bg-success",
 };
 
 function StatusBadge({ status }: { status: string }) {
+  const dotClass = statusVariant[status] ?? "bg-gray-400";
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusVariant[status] ?? "bg-gray-100 text-gray-700 border-gray-200"}`}
-    >
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-xs font-medium text-gray-700 shadow-sm">
+      <span className={`h-1.5 w-1.5 rounded-full ${dotClass}`} aria-hidden="true"></span>
       {status.replace("_", " ")}
     </span>
   );
@@ -87,7 +87,9 @@ const columns = [
     header: "Division",
     enableSorting: false,
     cell: (info) => (
-      <span className="text-gray-500">{info.getValue()?.name ?? "—"}</span>
+      <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+        {info.getValue()?.name ?? "—"}
+      </span>
     ),
   }),
   columnHelper.accessor("dueDate", {
@@ -187,11 +189,11 @@ export default function IssuesDataTable({
   });
 
   return (
-    <div className={`rounded-md border bg-white overflow-hidden shadow-sm transition-opacity ${isFetching && !isLoading ? "opacity-70" : "opacity-100"}`}>
+    <div className={`rounded-lg border border-gray-200 bg-white overflow-hidden shadow-none transition-opacity ${isFetching && !isLoading ? "opacity-70" : "opacity-100"}`}>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="bg-gray-50/50">
+            <TableRow key={headerGroup.id} className="bg-gray-50 border-b border-gray-200">
               {headerGroup.headers.map((header) => {
                 const colId     = header.column.id;
                 const isSortable = (SORTABLE_COLUMNS as readonly string[]).includes(colId);
@@ -241,7 +243,7 @@ export default function IssuesDataTable({
             </TableRow>
           ) : (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="hover:bg-zinc-50/50">
+              <TableRow key={row.id} className="hover:bg-gray-50/50 border-b border-gray-100 last:border-0 transition-colors">
                 {row.getVisibleCells().map((cell) => {
                   const colId = cell.column.id;
                   const colClassName =

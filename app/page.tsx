@@ -36,55 +36,55 @@ export default async function Home() {
 
   return (
     <div className="max-w-4xl mx-auto mt-10">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-extrabold text-foreground tracking-tight">Ethio Telecom Service Desk</h1>
-          <p className="text-muted-foreground mt-1">Regional infrastructure maintenance dashboard.</p>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">Ethio Telecom Service Desk</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Regional infrastructure maintenance dashboard.</p>
         </div>
         {criticalCount > 0 && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-3 py-1 text-xs font-bold text-destructive animate-pulse">
-            <span className="h-1.5 w-1.5 rounded-full bg-destructive"></span>
-            {criticalCount} Critical SLA Alerts
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-danger/10 px-2.5 py-1 text-xs font-bold text-danger">
+            <span className="h-1.5 w-1.5 rounded-full bg-danger animate-pulse"></span>
+            {criticalCount} Critical
           </span>
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-        <Card className="border-danger/20 shadow-sm flex flex-col justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <Card className="shadow-none rounded-md flex flex-col justify-between">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-danger uppercase">Open Issues</CardTitle>
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Open Issues</CardTitle>
           </CardHeader>
           <CardContent>
-            <span className="text-4xl font-bold">{openCount}</span>
+            <span className="text-3xl font-bold text-gray-900">{openCount}</span>
           </CardContent>
         </Card>
         
-        <Card className="border-warning/30 shadow-sm flex flex-col justify-between">
+        <Card className="shadow-none rounded-md flex flex-col justify-between">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-warning-foreground uppercase">In Progress</CardTitle>
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <span className="text-4xl font-bold">{inProgressCount}</span>
+            <span className="text-3xl font-bold text-gray-900">{inProgressCount}</span>
           </CardContent>
         </Card>
 
-        <Card className="border-success/20 shadow-sm flex flex-col justify-between">
+        <Card className="shadow-none rounded-md flex flex-col justify-between">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-success uppercase">Closed</CardTitle>
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Closed</CardTitle>
           </CardHeader>
           <CardContent>
-            <span className="text-4xl font-bold">{closedCount}</span>
+            <span className="text-3xl font-bold text-gray-900">{closedCount}</span>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="mb-6 shadow-sm border-border">
+      <Card className="mb-8 shadow-none rounded-md">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">Telecom Outage Priorities</CardTitle>
-          <CardDescription>Immediate active network disruptions requiring technician dispatch.</CardDescription>
+          <CardTitle className="text-lg font-semibold">Telecom Outage Priorities</CardTitle>
+          <CardDescription className="text-xs">Immediate active network disruptions requiring technician dispatch.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-4 mt-2">
             {['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map((prio) => {
               const count = issues.filter(i => i.priority === prio && i.status !== 'CLOSED').length;
               const activeIssuesTotal = issues.filter(i => i.status !== 'CLOSED').length;
@@ -98,9 +98,9 @@ export default async function Home() {
 
               return (
                 <div key={prio} className="flex items-center justify-between gap-4">
-                  <span className="text-sm font-semibold w-24 text-muted-foreground">{prio}</span>
-                  <Progress value={percent} className={`h-2.5 w-full flex-1 ${priorityColorClass}`} />
-                  <span className="text-sm font-bold w-8 text-right tabular-nums">{count}</span>
+                  <span className="text-xs font-medium w-20 text-muted-foreground">{prio}</span>
+                  <Progress value={percent} className={`h-1.5 w-full flex-1 bg-gray-100 ${priorityColorClass}`} />
+                  <span className="text-xs font-semibold w-8 text-right text-gray-700 tabular-nums">{count}</span>
                 </div>
               );
             })}
@@ -110,21 +110,21 @@ export default async function Home() {
 
       <AnalyticsCharts />
 
-      <Card className="shadow-sm border-border">
+      <Card className="mt-8 shadow-none rounded-md">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">Quick Actions</CardTitle>
+          <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex gap-3 flex-wrap">
             <Link 
               href="/issues/new"
-              className={buttonVariants({ variant: "default", className: "bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-sm" })}
+              className={buttonVariants({ variant: "default", className: "bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-none rounded-md" })}
             >
               File New Network Disruption
             </Link>
             <Link 
               href="/issues"
-              className={buttonVariants({ variant: "outline", className: "font-semibold shadow-sm border-gray-300 dark:border-gray-700" })}
+              className={buttonVariants({ variant: "outline", className: "font-medium shadow-none rounded-md text-gray-700" })}
             >
               Review Active Support Tickets
             </Link>

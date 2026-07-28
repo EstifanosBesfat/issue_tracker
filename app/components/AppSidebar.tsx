@@ -89,16 +89,13 @@ export default function AppSidebar() {
   return (
     <Sidebar>
       {/* ---- Header: Logo ---- */}
-      <SidebarHeader>
-        <Link href="/" onClick={handleNavClick} className="flex items-center gap-2 overflow-hidden">
+      <SidebarHeader className="border-b border-border/50 pb-4 mb-2">
+        <Link href="/" onClick={handleNavClick} className="flex items-center gap-2 overflow-hidden px-2 pt-2">
           <div className="shrink-0">
-            <Image
-              src="/tele horizontal.png"
-              alt="EthioTelecom"
-              width={140}
-              height={28}
-              style={{ height: "28px", width: "auto", objectFit: "contain" }}
-              priority
+            <img
+              src="/official-logo.png?v=2"
+              alt="Ethio Telecom"
+              style={{ height: "32px", width: "auto", objectFit: "contain" }}
             />
           </div>
         </Link>
@@ -113,11 +110,10 @@ export default function AppSidebar() {
                 href={item.href}
                 onClick={handleNavClick}
                 className={[
-                  "flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors",
-                  "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   isActive(item.href)
-                    ? "bg-sidebar-accent text-sidebar-primary font-semibold"
-                    : "text-sidebar-foreground",
+                    ? "bg-gray-100 text-gray-900 font-semibold dark:bg-zinc-800 dark:text-zinc-100"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-zinc-800/50",
                   !open && "justify-center px-0",
                 ].filter(Boolean).join(" ")}
               >

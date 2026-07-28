@@ -76,56 +76,58 @@ export default function IssueFilters({
   }, [searchValue, currentSearch, update]);
 
   return (
-    <div className="flex flex-wrap gap-3 mb-4 items-center">
+    <div className="flex flex-wrap gap-3 mb-6 items-center p-3 bg-gray-50/50 rounded-lg border border-gray-200 shadow-sm">
       {/* Search */}
-      <div className="relative flex-1 min-w-[200px] max-w-xs">
+      <div className="relative flex-1 min-w-[200px] max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
           type="text"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           placeholder="Search issues…"
-          className="pl-9"
+          className="pl-9 bg-white border-gray-200 shadow-none focus-visible:ring-primary/20"
           id="issue-search"
         />
       </div>
 
-      {/* Status */}
-      <Select
-        id="issue-status"
-        value={currentStatus}
-        onChange={(e) => update('status', e.target.value)}
-        className="w-36"
-      >
-        {statuses.map((s) => (
-          <option key={s.value} value={s.value}>{s.label}</option>
-        ))}
-      </Select>
+      <div className="flex items-center gap-2">
+        {/* Status */}
+        <Select
+          id="issue-status"
+          value={currentStatus}
+          onChange={(e) => update('status', e.target.value)}
+          className="w-36 bg-white border-gray-200 shadow-none focus:ring-primary/20 text-sm"
+        >
+          {statuses.map((s) => (
+            <option key={s.value} value={s.value}>{s.label}</option>
+          ))}
+        </Select>
 
-      {/* Priority */}
-      <Select
-        id="issue-priority"
-        value={currentPriority}
-        onChange={(e) => update('priority', e.target.value)}
-        className="w-36"
-      >
-        {priorities.map((p) => (
-          <option key={p.value} value={p.value}>{p.label}</option>
-        ))}
-      </Select>
+        {/* Priority */}
+        <Select
+          id="issue-priority"
+          value={currentPriority}
+          onChange={(e) => update('priority', e.target.value)}
+          className="w-36 bg-white border-gray-200 shadow-none focus:ring-primary/20 text-sm"
+        >
+          {priorities.map((p) => (
+            <option key={p.value} value={p.value}>{p.label}</option>
+          ))}
+        </Select>
 
-      {/* Division */}
-      <Select
-        id="issue-division"
-        value={currentDivisionId}
-        onChange={(e) => update('divisionId', e.target.value)}
-        className="w-40"
-      >
-        <option value="">All Divisions</option>
-        {divisions.map((d) => (
-          <option key={d.id} value={d.id}>{d.name}</option>
-        ))}
-      </Select>
+        {/* Division */}
+        <Select
+          id="issue-division"
+          value={currentDivisionId}
+          onChange={(e) => update('divisionId', e.target.value)}
+          className="w-40 bg-white border-gray-200 shadow-none focus:ring-primary/20 text-sm font-medium text-primary"
+        >
+          <option value="">All Divisions</option>
+          {divisions.map((d) => (
+            <option key={d.id} value={d.id}>{d.name}</option>
+          ))}
+        </Select>
+      </div>
     </div>
   );
 }
