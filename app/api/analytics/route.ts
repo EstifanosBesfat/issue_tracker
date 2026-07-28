@@ -49,16 +49,16 @@ export async function GET() {
     for (const issue of allIssues) {
       if (issue.category in categoryMap) categoryMap[issue.category]++;
     }
-    const byCategory = Object.entries(categoryMap).map(([key, count]) => ({
-      name: key
-        .replace("_", " ")
-        .replace("MOBILE_NETWORK", "Mobile")
-        .replace("FIBER_BROADBAND", "Fiber")
-        .replace("TELEBIRR_BILLING", "Telebirr")
-        .replace("CORE_INFRASTRUCTURE", "Core Infra")
-        .replace("OTHER", "Other"),
-      count,
-    }));
+    const byCategory = Object.entries(categoryMap).map(([key, count]) => {
+      const labels: Record<string, string> = {
+        MOBILE_NETWORK: "Mobile",
+        FIBER_BROADBAND: "Fiber",
+        TELEBIRR_BILLING: "Telebirr",
+        CORE_INFRASTRUCTURE: "Core Infra",
+        OTHER: "Other",
+      };
+      return { name: labels[key] ?? key, count };
+    });
 
     // Issues by status
     const statusMap: Record<string, number> = { OPEN: 0, IN_PROGRESS: 0, CLOSED: 0 };

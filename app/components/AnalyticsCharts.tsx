@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer,
+  BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer,
   LineChart, Line, Tooltip, Legend,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,13 +13,8 @@ interface AnalyticsData {
   trend: { label: string; count: number }[];
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Mobile: "#8DC63F",       // brand lime
-  Fiber: "#0072BC",        // brand deep blue
-  Telebirr: "#FFC20E",     // warning
-  "Core Infra": "#008FD5", // info
-  Other: "#64748b",        // neutral gray
-};
+// Ethio Telecom Lime — vibrant light green for category bars
+const BAR_FILL = "#8DC63F";
 
 const EMPTY_ANALYTICS: AnalyticsData = {
   byCategory: [],
@@ -136,12 +131,9 @@ export default function AnalyticsCharts() {
                 }}
                 cursor={{ fill: "var(--accent)" }}
               />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="count" fill={BAR_FILL} radius={[4, 4, 0, 0]}>
                 {chartData.byCategory.map((entry) => (
-                  <rect
-                    key={entry.name}
-                    fill={CATEGORY_COLORS[entry.name] ?? "#64748b"}
-                  />
+                  <Cell key={entry.name} fill={BAR_FILL} />
                 ))}
               </Bar>
             </BarChart>
@@ -184,9 +176,9 @@ export default function AnalyticsCharts() {
                 type="monotone"
                 dataKey="count"
                 name="New Tickets"
-                stroke="#0072BC"
+                stroke={BAR_FILL}
                 strokeWidth={2.5}
-                dot={{ r: 4, fill: "#0072BC", strokeWidth: 0 }}
+                dot={{ r: 4, fill: BAR_FILL, strokeWidth: 0 }}
                 activeDot={{ r: 6 }}
               />
             </LineChart>
