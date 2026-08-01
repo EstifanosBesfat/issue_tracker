@@ -12,6 +12,15 @@ export interface ProjectMember {
   };
 }
 
+export interface ProjectActivityLog {
+  id: string;
+  action: string;
+  oldValue: string | null;
+  newValue: string | null;
+  createdAt: string;
+  actor: { name: string | null; image: string | null } | null;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -24,7 +33,8 @@ export interface Project {
   createdBy?: { id: string; name: string | null; email: string };
   division?: { id: string; name: string } | null;
   members?: ProjectMember[];
-  _count?: { tasks: number };
+  activityLogs?: ProjectActivityLog[];
+  _count?: { tasks: number; members?: number };
 }
 
 export interface ProjectProgress {

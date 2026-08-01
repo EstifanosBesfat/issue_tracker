@@ -17,10 +17,13 @@ import ProgressRing from '@/app/components/ProgressRing';
 import ProjectStatusBadge from '@/app/components/ProjectStatusBadge';
 import KanbanBoard from '@/app/components/KanbanBoard';
 import MemberInvite from '@/app/components/MemberInvite';
+import ActivityTimeline from '@/app/components/ActivityTimeline';
 import PriorityBadge from '@/app/components/PriorityBadge';
 import OverdueBadge from '@/app/components/OverdueBadge';
 import Avatar from '@/app/components/Avatar';
 import { getDueDateStatus } from '@/app/lib/dueDateUtils';
+import { API_BASE_URL, getApiErrorMessage } from '@/lib/api';
+import { getToken } from '@/lib/auth-storage';
 import { buttonVariants } from '@/components/ui/button';
 
 const taskColumnHelper = createColumnHelper<Task>();
@@ -35,6 +38,8 @@ export default function ProjectDetailPage({
   const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState('');
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['project', id],
@@ -184,6 +189,33 @@ export default function ProjectDetailPage({
   }
 
   const displayStatus = progress?.status ?? project.status;
+  const justCompleted =
+    displayStatus === 'COMPLETED' &&
+    (progress?.percent ?? 0) === 100 &&
+    (progress?.total ?? 0) > 0;
+
+  const exportCsv = async () => {
+    setExporting(true);
+    setExportError('');
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_BASE_URL}/projects/${id}/tasks/export`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error('Export failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${project.name.replace(/\s+/g, '-').toLowerCase()}-tasks.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setExportError(getApiErrorMessage(err, 'Could not export tasks.'));
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -224,18 +256,38 @@ export default function ProjectDetailPage({
               </span>
             </div>
           </div>
-          <Link
-            href={`/projects/${id}/tasks/new`}
-            className={buttonVariants({
-              className: 'bg-primary text-primary-foreground shrink-0',
-            })}
-          >
-            New Task
-          </Link>
+          <div className="flex flex-col gap-2 shrink-0">
+            <Link
+              href={`/projects/${id}/tasks/new`}
+              className={buttonVariants({
+                className: 'bg-primary text-primary-foreground',
+              })}
+            >
+              New Task
+            </Link>
+            <button
+              type="button"
+              onClick={exportCsv}
+              disabled={exporting}
+              className={buttonVariants({
+                variant: 'outline',
+                className: 'text-gray-700',
+              })}
+            >
+              {exporting ? 'Exporting…' : 'Export CSV'}
+            </button>
+          </div>
         </div>
+        {exportError && <p className="mt-3 text-xs text-danger">{exportError}</p>}
       </div>
 
-      {overdueTasks.length > 0 && (
+      {justCompleted && (
+        <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
+          All tasks are done — this project was <strong>auto-completed</strong> by the system.
+        </div>
+      )}
+
+      {overdueTasks.length > 0 && displayStatus !== 'COMPLETED' && (
         <div className="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">
           <strong>{overdueTasks.length}</strong> overdue task
           {overdueTasks.length === 1 ? '' : 's'} in this project.
@@ -244,7 +296,7 @@ export default function ProjectDetailPage({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
             <h2 className="text-lg font-semibold text-gray-800">Tasks</h2>
             <div className="flex rounded-md border border-gray-200 overflow-hidden text-sm">
               <button
@@ -266,6 +318,21 @@ export default function ProjectDetailPage({
 
           {tasksLoading ? (
             <p className="text-sm text-gray-500">Loading tasks…</p>
+          ) : tasks.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
+              <p className="text-sm font-medium text-gray-700">No tasks yet</p>
+              <p className="text-xs text-gray-500 mt-1 mb-4">
+                Add the first task to start tracking progress.
+              </p>
+              <Link
+                href={`/projects/${id}/tasks/new`}
+                className={buttonVariants({
+                  className: 'bg-primary text-primary-foreground',
+                })}
+              >
+                Create first task
+              </Link>
+            </div>
           ) : viewMode === 'kanban' ? (
             <KanbanBoard
               tasks={tasks}
@@ -371,6 +438,12 @@ export default function ProjectDetailPage({
               }
             />
           </div>
+
+          {(project.activityLogs?.length ?? 0) > 0 && (
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+              <ActivityTimeline activityLogs={project.activityLogs ?? []} />
+            </div>
+          )}
         </div>
       </div>
     </div>

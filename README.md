@@ -37,7 +37,11 @@ cp .env apps/api/.env
 echo 'NEXT_PUBLIC_API_URL=http://localhost:4000/api' > apps/web/.env.local
 ```
 
-For **Neon**, set `DATABASE_URL` to your pooled Neon connection string (include `?sslmode=require`).
+For **Neon** (recommended), see [`docs/NEON.md`](docs/NEON.md) or run:
+
+```bash
+./scripts/use-neon.sh "postgresql://USER:PASSWORD@ep-xxxx-pooler.region.aws.neon.tech/neondb?sslmode=require"
+```
 
 ### 2. Install & migrate
 
@@ -46,6 +50,8 @@ npm install
 npm run db:deploy
 npm run db:seed
 ```
+
+Instructor walkthrough: [`docs/DEMO.md`](docs/DEMO.md)
 
 ### 3. Run API + Web
 

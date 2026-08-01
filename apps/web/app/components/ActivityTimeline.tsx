@@ -16,7 +16,7 @@ interface Props {
 const ACTION_LABELS: Record<string, string> = {
   PROJECT_CREATED: 'created this project',
   PROJECT_UPDATED: 'updated this project',
-  PROJECT_AUTO_COMPLETED: 'marked project as completed',
+  PROJECT_AUTO_COMPLETED: 'auto-completed this project (all tasks done)',
   PROJECT_REOPENED: 'reopened the project',
   TASK_CREATED: 'created a task',
   TASK_UPDATED: 'updated a task',
@@ -55,7 +55,7 @@ export default function ActivityTimeline({ activityLogs }: Props) {
   if (!activityLogs.length) return null;
 
   return (
-    <div className="mt-8">
+    <div>
       <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4">Activity</h3>
       <ol className="relative border-l border-gray-200 space-y-6 ml-3">
         {activityLogs.map((log) => {

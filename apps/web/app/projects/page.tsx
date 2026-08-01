@@ -186,10 +186,31 @@ export default function ProjectsPage() {
         </select>
       </div>
 
+      {!isLoading && projects.length === 0 && (
+        <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center">
+          <p className="text-base font-semibold text-gray-800">No projects yet</p>
+          <p className="text-sm text-gray-500 mt-1 mb-4">
+            Create your first project to start assigning tasks.
+          </p>
+          <Link
+            href="/projects/new"
+            className={buttonVariants({
+              className: 'bg-primary text-primary-foreground',
+            })}
+          >
+            Create project
+          </Link>
+        </div>
+      )}
+
       {/* Card grid for mobile */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:hidden">
         {isLoading ? (
           <p className="text-sm text-gray-500">Loading projects…</p>
+        ) : filtered.length === 0 && projects.length > 0 ? (
+          <p className="text-sm text-gray-500 col-span-full text-center py-8">
+            No projects match your filters.
+          </p>
         ) : (
           filtered.map((p) => (
             <Card key={p.id} className="shadow-sm">
