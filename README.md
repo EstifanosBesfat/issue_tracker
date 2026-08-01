@@ -63,6 +63,15 @@ npm run dev:api
 npm run dev:web
 ```
 
+**Windows note:** if you see `Cannot find module '../lightningcss.win32-x64-msvc.node'`, reinstall native CSS binaries from the repo root:
+
+```powershell
+Remove-Item -Recurse -Force apps\web\.next -ErrorAction SilentlyContinue
+npm install
+npm install lightningcss-win32-x64-msvc @tailwindcss/oxide-win32-x64-msvc -w @ethio/web
+npm run dev:web
+```
+
 - Web: http://localhost:3000  
 - API: http://localhost:4000/api  
 - Swagger: http://localhost:4000/api/docs  
