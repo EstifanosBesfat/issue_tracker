@@ -1,25 +1,24 @@
 services:
-  # ── PostgreSQL database ──────────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
-    container_name: ethiotelecom_db
+    container_name: ethiotelecom_pm_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-ethio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ethio}
+      POSTGRES_DB: ${POSTGRES_DB:-project_manager}
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ethio}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ── Database migration runner ─────────────────────────────────────────────────
   migrate:
     image: node:20-alpine
-    container_name: ethiotelecom_migrate
     working_dir: /app
     volumes:
       - .:/app
@@ -28,36 +27,50 @@ services:
     command: >
       sh -c "
         npm install --prefer-offline --no-audit &&
-        npx prisma generate &&
-        npx prisma migrate deploy
+        npm run db:generate &&
+        npm run db:deploy
       "
     depends_on:
       db:
         condition: service_healthy
 
-  # ── Next.js application ──────────────────────────────────────────────────────
-  app:
+  api:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: issue-tracker-app
-    container_name: ethiotelecom_app
+      dockerfile: apps/api/Dockerfile
+    container_name: ethiotelecom_pm_api
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 4000
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/api}
+    container_name: ethiotelecom_pm_web
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: ${DATABASE_URL}
-      AUTH_URL: ${AUTH_URL}
-      AUTH_SECRET: ${AUTH_SECRET}
-      AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID}
-      AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET}
-      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
-      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
-      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
-      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/api}
     depends_on:
-      db:
-        condition: service_healthy
+      - api
 
 volumes:
   postgres_data:
