@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3000",
-    "build": "next build",
-    "start": "next start --port 3000",
-    "lint": "eslint .",
-    "test": "jest"
+    "dev": "npx next dev --port 3000",
+    "build": "npx next build",
+    "start": "npx next start --port 3000",
+    "lint": "npx eslint .",
+    "test": "npx jest"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
