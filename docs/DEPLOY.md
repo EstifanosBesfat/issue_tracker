@@ -10,12 +10,26 @@ Target setup:
 
 ---
 
+## 0) Old Railway Postgres from the issue tracker
+
+You do **not** need the previous Railway Postgres anymore. This app uses **Neon** (`ethio_pm`).
+
+In Railway:
+1. Open the old **Postgres** service (from the issue tracker)
+2. Disconnect it from the API service (remove variable references if linked)
+3. **Delete** the Postgres service (or leave it stopped — do not use its `DATABASE_URL`)
+4. On the API service, set `DATABASE_URL` to your **Neon** `ethio_pm` pooled URL only
+
+Do **not** keep both Railway Postgres and Neon `DATABASE_URL`s — only Neon.
+
+---
+
 ## 1) Deploy API on Railway
 
-1. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
+1. Go to [railway.app](https://railway.app) → open your existing API service (or **New Project** → **Deploy from GitHub repo**)
 2. Select `EstifanosBesfat/issue_tracker` (branch `master`)
 3. Railway should pick up [`railway.toml`](../railway.toml) (Docker build)
-4. Open the service → **Variables** → add:
+4. Open the service → **Variables** → add/replace:
 
 | Variable | Value |
 |----------|-------|
