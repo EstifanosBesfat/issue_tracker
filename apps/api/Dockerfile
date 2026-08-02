@@ -3,6 +3,9 @@
 
 FROM node:22-alpine AS deps
 WORKDIR /app
+# Ensure devDependencies (and build tooling) are installed even if the
+# platform sets NODE_ENV=production during image build.
+ENV NODE_ENV=development
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/
 COPY packages/database/package.json packages/database/
@@ -11,10 +14,12 @@ RUN npm ci \
   --workspace=@ethio/api \
   --workspace=@ethio/database \
   --include-workspace-root \
-  --ignore-scripts
+  --ignore-scripts \
+  --include=dev
 
 FROM node:22-alpine AS builder
 WORKDIR /app
+ENV NODE_ENV=development
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
 COPY packages/database ./packages/database
