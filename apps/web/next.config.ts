@@ -1,10 +1,14 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // Standalone is for Docker; Vercel uses its own Next.js output.
+  ...(process.env.VERCEL ? {} : { output: 'standalone' as const }),
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Monorepo: trace files from repo root
+  outputFileTracingRoot: require('path').join(__dirname, '../..'),
+
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

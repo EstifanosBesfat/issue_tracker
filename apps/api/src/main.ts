@@ -17,8 +17,13 @@ async function bootstrap() {
     }),
   );
 
+  const frontendOrigins = (process.env.FRONTEND_URL ?? 'http://localhost:3000')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    origin: frontendOrigins.length === 1 ? frontendOrigins[0] : frontendOrigins,
     credentials: true,
   });
 
@@ -35,9 +40,10 @@ async function bootstrap() {
   });
 
   const port = Number(process.env.PORT) || 4000;
-  await app.listen(port);
-  console.log(`API listening on http://localhost:${port}/api`);
-  console.log(`Swagger docs at http://localhost:${port}/api/docs`);
+  // Bind all interfaces so Railway/containers can reach the service.
+  await app.listen(port, '0.0.0.0');
+  console.log(`API listening on http://0.0.0.0:${port}/api`);
+  console.log(`Swagger docs at http://0.0.0.0:${port}/api/docs`);
 }
 
 bootstrap();

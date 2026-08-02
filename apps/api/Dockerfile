@@ -24,4 +24,5 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/database ./packages/database
 COPY --from=builder /app/apps/api ./apps/api
 EXPOSE 4000
-CMD ["npm", "run", "start:prod", "-w", "@ethio/api"]
+# Apply Prisma migrations against Neon, then start NestJS
+CMD ["sh", "-c", "npm run db:deploy && npm run start:prod -w @ethio/api"]

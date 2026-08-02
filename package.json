@@ -19,6 +19,7 @@
     "db:deploy": "npm run migrate:deploy -w @ethio/database",
     "db:push": "npm run db:push -w @ethio/database",
     "db:seed": "npm run db:seed -w @ethio/database",
-    "postinstall": "npm run generate -w @ethio/database"
+    "start:api": "npm run start:prod -w @ethio/api",
+    "postinstall": "npm run generate -w @ethio/database --if-present"
   }
 }

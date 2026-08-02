@@ -1,0 +1,12 @@
+# Railway — NestJS API (deploy from repo root)
+# Dashboard: set Root Directory empty / repo root, use this config.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "apps/api/Dockerfile"
+
+[deploy]
+healthcheckPath = "/api/docs"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
