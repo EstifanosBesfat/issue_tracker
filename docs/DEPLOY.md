@@ -10,7 +10,7 @@ Target setup:
 
 ---
 
-## 0) Old Railway Postgres from the issue tracker
+## 0) Clean up the old issue-tracker Railway service
 
 You do **not** need the previous Railway Postgres anymore. This app uses **Neon** (`ethio_pm`).
 
@@ -21,6 +21,24 @@ In Railway:
 4. On the API service, set `DATABASE_URL` to your **Neon** `ethio_pm` pooled URL only
 
 Do **not** keep both Railway Postgres and Neon `DATABASE_URL`s — only Neon.
+
+### Clear old Pre-deploy Command (common “predeploy command failed”)
+
+The old issue tracker often had a Railway **Pre-deploy Command** like:
+
+```bash
+npx prisma migrate deploy
+```
+
+That path no longer exists in the monorepo, so Railway reports **predeploy command failed**.
+
+Fix:
+1. Open your **API service** → **Settings** → **Deploy**
+2. Find **Custom Pre-deploy Command** / **Pre-deploy Command**
+3. **Delete / clear it** (leave empty)
+4. Also clear any custom **Start Command** so the Dockerfile `CMD` is used  
+   (Dockerfile already runs `npm run db:deploy && npm run start:prod -w @ethio/api`)
+5. Redeploy
 
 ---
 
