@@ -33,28 +33,7 @@ export class ProjectsController {
     return this.projectsService.create(dto, user);
   }
 
-  @Get(':id')
-  @UseGuards(ProjectMemberGuard)
-  findOne(@Param('id') id: string, @CurrentUser() user: AuthUser) {
-    return this.projectsService.findOne(id, user);
-  }
-
-  @Patch(':id')
-  @UseGuards(ProjectOwnerGuard)
-  update(
-    @Param('id') id: string,
-    @Body() dto: UpdateProjectDto,
-    @CurrentUser() user: AuthUser,
-  ) {
-    return this.projectsService.update(id, dto, user);
-  }
-
-  @Delete(':id')
-  @UseGuards(ProjectOwnerGuard)
-  remove(@Param('id') id: string, @CurrentUser() user: AuthUser) {
-    return this.projectsService.remove(id, user);
-  }
-
+  // More specific routes must be registered before `:id`.
   @Get(':id/progress')
   @UseGuards(ProjectMemberGuard)
   getProgress(@Param('id') id: string) {
@@ -90,5 +69,27 @@ export class ProjectsController {
     @CurrentUser() user: AuthUser,
   ) {
     return this.projectsService.removeMember(id, userId, user);
+  }
+
+  @Get(':id')
+  @UseGuards(ProjectMemberGuard)
+  findOne(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.projectsService.findOne(id, user);
+  }
+
+  @Patch(':id')
+  @UseGuards(ProjectOwnerGuard)
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateProjectDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.projectsService.update(id, dto, user);
+  }
+
+  @Delete(':id')
+  @UseGuards(ProjectOwnerGuard)
+  remove(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.projectsService.remove(id, user);
   }
 }

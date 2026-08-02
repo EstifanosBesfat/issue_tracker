@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useQuery, useQueries } from '@tanstack/react-query';
+import { goToProject } from '@/lib/navigation';
 import {
   useReactTable,
   getCoreRowModel,
@@ -80,12 +81,13 @@ export default function ProjectsPage() {
       columnHelper.accessor('name', {
         header: 'Name',
         cell: ({ row }) => (
-          <Link
+          <a
             href={`/projects/${row.original.id}`}
             className="font-medium text-gray-900 hover:text-secondary"
+            onClick={(e) => e.stopPropagation()}
           >
             {row.original.name}
-          </Link>
+          </a>
         ),
       }),
       columnHelper.accessor('status', {
@@ -213,17 +215,24 @@ export default function ProjectsPage() {
           </p>
         ) : (
           filtered.map((p) => (
-            <Card key={p.id} className="shadow-sm">
+            <Card
+              key={p.id}
+              className="shadow-sm cursor-pointer transition hover:border-primary/40 hover:shadow-md"
+              role="link"
+              tabIndex={0}
+              onClick={() => goToProject(p.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  goToProject(p.id);
+                }
+              }}
+            >
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
                   <ProgressRing percent={p.progress?.percent ?? 0} size={44} />
                   <div className="flex-1 min-w-0">
-                    <Link
-                      href={`/projects/${p.id}`}
-                      className="font-semibold text-gray-900 hover:text-secondary block truncate"
-                    >
-                      {p.name}
-                    </Link>
+                    <p className="font-semibold text-gray-900 truncate">{p.name}</p>
                     <div className="flex flex-wrap gap-2 mt-2">
                       <ProjectStatusBadge status={p.status} />
                       {p.division && (
@@ -275,7 +284,11 @@ export default function ProjectsPage() {
               </tr>
             ) : (
               table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50">
+                <tr
+                  key={row.id}
+                  className="hover:bg-gray-50 cursor-pointer"
+                  onClick={() => goToProject(row.original.id)}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

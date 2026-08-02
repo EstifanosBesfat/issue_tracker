@@ -110,8 +110,13 @@ export default function CommandPalette() {
       e.preventDefault();
       setSelectedIdx((i) => Math.max(i - 1, 0));
     } else if (e.key === 'Enter' && allItems[selectedIdx]) {
-      router.push(allItems[selectedIdx].href);
+      const href = allItems[selectedIdx].href;
       setOpen(false);
+      if (href.startsWith('/projects/') && href !== '/projects/new') {
+        window.location.assign(href);
+      } else {
+        router.push(href);
+      }
     }
   };
 
@@ -161,8 +166,12 @@ export default function CommandPalette() {
                 <button
                   key={item.id}
                   onClick={() => {
-                    router.push(item.href);
                     setOpen(false);
+                    if (item.href.startsWith('/projects/') && item.href !== '/projects/new') {
+                      window.location.assign(item.href);
+                    } else {
+                      router.push(item.href);
+                    }
                   }}
                   onMouseEnter={() => setSelectedIdx(idx)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${

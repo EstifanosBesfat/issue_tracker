@@ -1,7 +1,7 @@
 'use client';
 
-import { use } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuth } from '@/app/auth-context';
@@ -16,12 +16,10 @@ import Avatar from '@/app/components/Avatar';
 import { buttonVariants } from '@/components/ui/button';
 import { getDueDateStatus } from '@/app/lib/dueDateUtils';
 
-export default function TaskDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function TaskDetailPage() {
+  const routeParams = useParams<{ id: string }>();
+  const raw = routeParams?.id;
+  const id = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] ?? '' : '';
   const { user } = useAuth();
 
   const { data: task, isLoading } = useQuery({
@@ -30,6 +28,7 @@ export default function TaskDetailPage({
       const { data } = await api.get<Task>(`/tasks/${id}`);
       return data;
     },
+    enabled: Boolean(id),
   });
 
   if (isLoading) {
@@ -61,6 +60,10 @@ export default function TaskDetailPage({
         {task.project && (
           <Link
             href={`/projects/${task.project.id}`}
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.assign(`/projects/${task.project.id}`);
+            }}
             className="text-sm text-secondary hover:underline"
           >
             ← Back to {task.project.name}

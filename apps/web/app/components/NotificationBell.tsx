@@ -163,9 +163,14 @@ export default function NotificationBell() {
                   <Link
                     key={n.id}
                     href={getNotificationHref(n)}
-                    onClick={() => {
+                    onClick={(e) => {
                       markOneRead(n.id);
                       setOpen(false);
+                      const href = getNotificationHref(n);
+                      if (href.startsWith('/projects/')) {
+                        e.preventDefault();
+                        window.location.assign(href);
+                      }
                     }}
                     className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${!n.read ? 'bg-secondary/5' : ''}`}
                   >

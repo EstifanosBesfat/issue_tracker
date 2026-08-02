@@ -1,7 +1,8 @@
 'use client';
 
-import { use, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   useReactTable,
@@ -9,7 +10,7 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { api } from '@/lib/api';
+import { api, API_BASE_URL, getApiErrorMessage } from '@/lib/api';
 import { useAuth } from '@/app/auth-context';
 import type { Project, ProjectMember, ProjectProgress } from '@/app/types/project';
 import type { Task, TaskStatus, TaskListResponse } from '@/app/types/task';
@@ -22,18 +23,19 @@ import PriorityBadge from '@/app/components/PriorityBadge';
 import OverdueBadge from '@/app/components/OverdueBadge';
 import Avatar from '@/app/components/Avatar';
 import { getDueDateStatus } from '@/app/lib/dueDateUtils';
-import { API_BASE_URL, getApiErrorMessage } from '@/lib/api';
 import { getToken } from '@/lib/auth-storage';
 import { buttonVariants } from '@/components/ui/button';
 
 const taskColumnHelper = createColumnHelper<Task>();
 
-export default function ProjectDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+function useRouteId() {
+  const params = useParams<{ id: string }>();
+  const raw = params?.id;
+  return typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] ?? '' : '';
+}
+
+export default function ProjectDetailPage() {
+  const id = useRouteId();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
@@ -41,12 +43,19 @@ export default function ProjectDetailPage({
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState('');
 
-  const { data: project, isLoading: projectLoading } = useQuery({
+  const {
+    data: project,
+    isLoading: projectLoading,
+    isError: projectError,
+    error: projectFetchError,
+    refetch: refetchProject,
+  } = useQuery({
     queryKey: ['project', id],
     queryFn: async () => {
       const { data } = await api.get<Project>(`/projects/${id}`);
       return data;
     },
+    enabled: Boolean(id),
   });
 
   const { data: progress } = useQuery({
@@ -55,6 +64,7 @@ export default function ProjectDetailPage({
       const { data } = await api.get<ProjectProgress>(`/projects/${id}/progress`);
       return data;
     },
+    enabled: Boolean(id),
   });
 
   const { data: tasksData, isLoading: tasksLoading } = useQuery({
@@ -65,6 +75,7 @@ export default function ProjectDetailPage({
       );
       return data;
     },
+    enabled: Boolean(id),
   });
 
   const tasks = tasksData?.items ?? [];
@@ -180,12 +191,47 @@ export default function ProjectDetailPage({
     getCoreRowModel: getCoreRowModel(),
   });
 
+  if (!id) {
+    return (
+      <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
+        <p className="text-sm font-medium text-gray-800">Invalid project link</p>
+        <Link href="/projects" className="mt-4 inline-block text-sm text-secondary hover:underline">
+          Back to projects
+        </Link>
+      </div>
+    );
+  }
+
   if (projectLoading) {
     return <p className="text-sm text-gray-500">Loading project…</p>;
   }
 
-  if (!project) {
-    return <p className="text-sm text-danger">Project not found.</p>;
+  if (projectError || !project) {
+    return (
+      <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center">
+        <p className="text-sm font-medium text-gray-800">Unable to open this project</p>
+        <p className="mt-2 text-xs text-gray-500">
+          {getApiErrorMessage(projectFetchError, 'The project may not exist or you may not have access.')}
+        </p>
+        <div className="mt-4 flex justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => refetchProject()}
+            className={buttonVariants({ variant: 'outline' })}
+          >
+            Try again
+          </button>
+          <Link
+            href="/projects"
+            className={buttonVariants({
+              className: 'bg-primary text-primary-foreground',
+            })}
+          >
+            Back to projects
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const displayStatus = progress?.status ?? project.status;

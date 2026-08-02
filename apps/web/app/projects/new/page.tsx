@@ -46,7 +46,7 @@ export default function NewProjectPage() {
         dueDate: data.dueDate || undefined,
       };
       const { data: project } = await api.post('/projects', payload);
-      router.push(`/projects/${project.id}`);
+      window.location.assign(`/projects/${project.id}`);
     } catch (err) {
       setError('root', { message: getApiErrorMessage(err, 'Failed to create project') });
     }
