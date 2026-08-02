@@ -102,27 +102,27 @@ npm run dev:web
 - Admin: users, divisions, Swagger link
 - Notifications (SSE with polling fallback)
 
-## Deploy separately
+## Deploy (Railway + Vercel)
 
-### Backend (`apps/api`)
+Step-by-step guide: [`docs/DEPLOY.md`](docs/DEPLOY.md)
+
+| App | Host |
+|-----|------|
+| API (`apps/api`) | Railway (Dockerfile via `railway.toml`) |
+| Web (`apps/web`) | Vercel (Root Directory = `apps/web`) |
+| DB | Neon (`ethio_pm`) |
+
+### Docker (optional self-host)
 
 ```bash
 docker build -f apps/api/Dockerfile -t ethio-pm-api .
 docker run -p 4000:4000 --env-file .env ethio-pm-api
-```
 
-Required env: `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`, `APP_URL`
-
-### Frontend (`apps/web`)
-
-```bash
 docker build -f apps/web/Dockerfile \
   --build-arg NEXT_PUBLIC_API_URL=https://your-api.example.com/api \
   -t ethio-pm-web .
 docker run -p 3000:3000 ethio-pm-web
 ```
-
-Or use `docker compose up --build` for local Postgres + api + web.
 
 ## Instructor demo checklist
 
