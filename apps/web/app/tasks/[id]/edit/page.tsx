@@ -1,7 +1,7 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
@@ -15,12 +15,10 @@ import ImageUpload from '@/app/components/ImageUpload';
 
 type FormData = z.infer<typeof patchTaskSchema>;
 
-export default function EditTaskPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function EditTaskPage() {
+  const routeParams = useParams<{ id: string }>();
+  const raw = routeParams?.id;
+  const id = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] ?? '' : '';
   const router = useRouter();
 
   const { data: task, isLoading } = useQuery({
@@ -29,6 +27,7 @@ export default function EditTaskPage({
       const { data } = await api.get<Task>(`/tasks/${id}`);
       return data;
     },
+    enabled: Boolean(id),
   });
 
   const existingImages = task?.images?.map((img) => img.url) ?? [];

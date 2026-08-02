@@ -1,7 +1,7 @@
 'use client';
 
-import { use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
@@ -11,16 +11,13 @@ import { createTaskSchema } from '@/app/validationSchemas';
 import type { Division } from '@/app/types/project';
 import { z } from 'zod';
 import ImageUpload from '@/app/components/ImageUpload';
-import { useState } from 'react';
 
 type FormData = z.infer<typeof createTaskSchema>;
 
-export default function NewTaskPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id: projectId } = use(params);
+export default function NewTaskPage() {
+  const routeParams = useParams<{ id: string }>();
+  const raw = routeParams?.id;
+  const projectId = typeof raw === 'string' ? raw : Array.isArray(raw) ? raw[0] ?? '' : '';
   const router = useRouter();
   const [imageUrls, setImageUrls] = useState<string[]>([]);
 
@@ -59,6 +56,7 @@ export default function NewTaskPage({
       );
       return data;
     },
+    enabled: Boolean(projectId),
   });
 
   const members = project?.members ?? [];
