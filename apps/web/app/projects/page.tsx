@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useQuery, useQueries } from '@tanstack/react-query';
+import { goToProject } from '@/lib/navigation';
 import {
   useReactTable,
   getCoreRowModel,
@@ -25,13 +25,8 @@ type ProjectRow = Project & { progress?: ProjectProgress };
 const columnHelper = createColumnHelper<ProjectRow>();
 
 export default function ProjectsPage() {
-  const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [search, setSearch] = useState('');
-
-  const openProject = (projectId: string) => {
-    router.push(`/projects/${projectId}`);
-  };
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
@@ -86,12 +81,13 @@ export default function ProjectsPage() {
       columnHelper.accessor('name', {
         header: 'Name',
         cell: ({ row }) => (
-          <Link
+          <a
             href={`/projects/${row.original.id}`}
             className="font-medium text-gray-900 hover:text-secondary"
+            onClick={(e) => e.stopPropagation()}
           >
             {row.original.name}
-          </Link>
+          </a>
         ),
       }),
       columnHelper.accessor('status', {
@@ -224,11 +220,11 @@ export default function ProjectsPage() {
               className="shadow-sm cursor-pointer transition hover:border-primary/40 hover:shadow-md"
               role="link"
               tabIndex={0}
-              onClick={() => openProject(p.id)}
+              onClick={() => goToProject(p.id)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  openProject(p.id);
+                  goToProject(p.id);
                 }
               }}
             >
@@ -291,7 +287,7 @@ export default function ProjectsPage() {
                 <tr
                   key={row.id}
                   className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => openProject(row.original.id)}
+                  onClick={() => goToProject(row.original.id)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-4 py-3">

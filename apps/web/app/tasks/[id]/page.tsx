@@ -60,6 +60,10 @@ export default function TaskDetailPage() {
         {task.project && (
           <Link
             href={`/projects/${task.project.id}`}
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.assign(`/projects/${task.project.id}`);
+            }}
             className="text-sm text-secondary hover:underline"
           >
             ← Back to {task.project.name}
