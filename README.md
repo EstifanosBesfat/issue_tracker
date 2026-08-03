@@ -143,7 +143,17 @@ docker run -p 4000:4000 --env-file .env ethio-pm-api
 
 Required env: `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`, `APP_URL`
 
-### Frontend (`apps/web`)
+### Frontend (`apps/web`) — Vercel
+
+In the Vercel project **Settings → General → Root Directory**, set:
+
+**`apps/web`**
+
+Leave Framework as Next.js. The repo includes `apps/web/vercel.json` which installs from the monorepo root and builds `@ethio/database` + `@ethio/web`.
+
+Required env on Vercel: `NEXT_PUBLIC_API_URL` (e.g. `https://your-api.example.com/api`)
+
+Or Docker:
 
 ```bash
 docker build -f apps/web/Dockerfile \
