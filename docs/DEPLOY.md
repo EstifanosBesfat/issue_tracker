@@ -62,32 +62,42 @@ cd apps/api && npx vercel dev --listen 4000
 | Framework | Next.js (auto) |
 | Install / Build | from `apps/web/vercel.json` |
 
-3. **Environment Variables**:
+3. **Environment Variables** (recommended even if `.env.production` exists):
 
 | Variable | Value | Environments |
 |----------|-------|----------------|
-| `NEXT_PUBLIC_API_URL` | `https://<api-vercel-domain>/api` | Production, Preview |
+| `NEXT_PUBLIC_API_URL` | `https://teleprojectmanager-three.vercel.app/api` | Production, Preview |
 
-4. Deploy and copy the web URL
+4. Deploy and copy the web URL (e.g. `https://teletasksync.vercel.app`)
+
+> `apps/web/.env.production` already defaults to the Vercel API URL above.  
+> Setting the same value in the Vercel dashboard overrides it and is clearer for Previews.
 
 ---
 
 ## 3) Connect them (important)
 
+Current production pair:
+
+| App | URL |
+|-----|-----|
+| Web | `https://teletasksync.vercel.app` |
+| API | `https://teleprojectmanager-three.vercel.app` |
+
 On the **API** Vercel project, set:
 
 ```text
-FRONTEND_URL=https://<your-web-app>.vercel.app
-APP_URL=https://<your-web-app>.vercel.app
+FRONTEND_URL=https://teletasksync.vercel.app
+APP_URL=https://teletasksync.vercel.app
 ```
 
 On the **Web** Vercel project, set:
 
 ```text
-NEXT_PUBLIC_API_URL=https://<your-api-app>.vercel.app/api
+NEXT_PUBLIC_API_URL=https://teleprojectmanager-three.vercel.app/api
 ```
 
-Redeploy both after changing env vars.
+Redeploy **both** after changing env vars (web must rebuild so `NEXT_PUBLIC_*` is baked in).
 
 If you use a custom domain later, put both origins comma-separated on the API:
 

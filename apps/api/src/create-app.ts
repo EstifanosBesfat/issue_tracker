@@ -4,13 +4,17 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 function getCorsOrigins(): string | string[] {
-  const origins = (process.env.FRONTEND_URL ?? 'http://localhost:3000')
+  const defaults = [
+    'http://localhost:3000',
+    'https://teletasksync.vercel.app',
+  ];
+  const origins = (process.env.FRONTEND_URL ?? defaults.join(','))
     .split(',')
     .map((origin) => origin.trim().replace(/\/$/, ''))
     .filter(Boolean);
 
-  if (!origins.includes('http://localhost:3000')) {
-    origins.push('http://localhost:3000');
+  for (const origin of defaults) {
+    if (!origins.includes(origin)) origins.push(origin);
   }
 
   return origins.length === 1 ? origins[0] : origins;
