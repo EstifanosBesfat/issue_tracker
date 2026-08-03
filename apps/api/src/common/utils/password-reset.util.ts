@@ -18,16 +18,7 @@ export function getResetTokenExpiry() {
 }
 
 export function getAppUrl() {
-  const railwayPublicDomain = process.env.RAILWAY_PUBLIC_DOMAIN
-    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-    : undefined;
-
-  return (
-    process.env.APP_URL ??
-    railwayPublicDomain ??
-    process.env.FRONTEND_URL ??
-    'http://localhost:3000'
-  );
+  return process.env.APP_URL ?? process.env.FRONTEND_URL ?? 'http://localhost:3000';
 }
 
 export function buildResetPasswordUrl(rawToken: string) {

@@ -102,26 +102,21 @@ npm run dev:web
 - Admin: users, divisions, Swagger link
 - Notifications (SSE with polling fallback)
 
-## Deploy (Railway + Vercel)
+## Deploy (Vercel API + Vercel Web)
 
 Step-by-step guide: [`docs/DEPLOY.md`](docs/DEPLOY.md)
 
 | App | Host |
 |-----|------|
-| API (`apps/api`) | Railway (Dockerfile via `railway.toml`) |
+| API (`apps/api`) | Vercel serverless (`apps/api/vercel.json`) |
 | Web (`apps/web`) | Vercel (Root Directory = `apps/web`) |
 | DB | Neon (`ethio_pm`) |
 
-### Docker (optional self-host)
+### Local
 
 ```bash
-docker build -f apps/api/Dockerfile -t ethio-pm-api .
-docker run -p 4000:4000 --env-file .env ethio-pm-api
-
-docker build -f apps/web/Dockerfile \
-  --build-arg NEXT_PUBLIC_API_URL=https://your-api.example.com/api \
-  -t ethio-pm-web .
-docker run -p 3000:3000 ethio-pm-web
+npm run dev:api   # Nest on http://localhost:4000/api
+npm run dev:web   # Next on http://localhost:3000
 ```
 
 ## Instructor demo checklist

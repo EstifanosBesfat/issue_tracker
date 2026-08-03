@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "node ./scripts/run-nest.js build",
+    "build": "node ./scripts/ensure-database.js && node ./scripts/run-nest.js build",
     "start": "node ./scripts/run-nest.js start",
     "start:dev": "node ./scripts/run-nest.js start --watch",
     "start:prod": "node dist/main.js",
+    "dev:vercel": "npx vercel dev --listen 4000",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },
   "dependencies": {
@@ -22,6 +23,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cloudinary": "^2.10.0",
+    "express": "^5.1.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
@@ -37,6 +39,7 @@
     "@types/multer": "^1.4.12",
     "@types/node": "^20",
     "@types/passport-jwt": "^4.0.1",
+    "@vercel/node": "^5.9.3",
     "typescript": "^5"
   }
 }
