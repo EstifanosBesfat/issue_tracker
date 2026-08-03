@@ -17,14 +17,11 @@ async function bootstrap() {
     }),
   );
 
-  const frontendOrigins = (process.env.FRONTEND_URL ?? 'http://localhost:3000')
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
-
   app.enableCors({
-    origin: frontendOrigins.length === 1 ? frontendOrigins[0] : frontendOrigins,
+    origin: 'https://vercel.app',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
   const swaggerConfig = new DocumentBuilder()
