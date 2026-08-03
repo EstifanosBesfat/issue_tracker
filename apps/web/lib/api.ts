@@ -1,8 +1,25 @@
 import axios from 'axios';
 import { clearAuth, getToken } from './auth-storage';
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
+const VERCEL_API_URL = 'https://teleprojectmanager-three.vercel.app/api';
+const LOCAL_API_URL = 'http://localhost:4000/api';
+
+function resolveApiBaseUrl(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+
+  // Stale Railway deploys leave this env set on Vercel — ignore it.
+  if (fromEnv && !fromEnv.includes('railway.app')) {
+    return fromEnv;
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    return VERCEL_API_URL;
+  }
+
+  return fromEnv ?? LOCAL_API_URL;
+}
+
+export const API_BASE_URL = resolveApiBaseUrl();
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
