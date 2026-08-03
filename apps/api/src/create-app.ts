@@ -43,8 +43,17 @@ export async function configureApp(app: INestApplication): Promise<void> {
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
+  // Vercel serverless cannot serve swagger-ui static files from node_modules.
+  // Load CSS/JS from a CDN so /api/docs works in production.
+  const swaggerUiVersion = '5.17.14';
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: { persistAuthorization: true },
+    customCssUrl: `https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/${swaggerUiVersion}/swagger-ui.min.css`,
+    customJs: [
+      `https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/${swaggerUiVersion}/swagger-ui-bundle.min.js`,
+      `https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/${swaggerUiVersion}/swagger-ui-standalone-preset.min.js`,
+    ],
+    customSiteTitle: 'EthioTelecom Project Manager API',
   });
 }
 
