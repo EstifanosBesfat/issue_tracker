@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -144,7 +145,7 @@ export class ProjectsService {
     await this.ensureCanManage(projectId, user);
 
     if (!dto.userId && !dto.email) {
-      throw new ForbiddenException('userId or email is required');
+      throw new BadRequestException('userId or email is required');
     }
 
     const memberUser = dto.userId
